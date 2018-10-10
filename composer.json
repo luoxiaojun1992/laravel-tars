@@ -14,7 +14,8 @@
     "phptars/tars-server": "~0.1",
     "phptars/tars-deploy": "~0.1",
     "phptars/tars2php": "~0.1",
-    "phptars/tars-log": "~0.1"
+    "phptars/tars-log": "~0.1",
+    "laravelista/lumen-vendor-publish": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
