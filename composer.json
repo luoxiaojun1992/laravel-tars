@@ -1,0 +1,26 @@
+{
+  "name": "luoxiaojun1992/laravel-tars",
+  "description": "Laravel Tars",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "author's name",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "illuminate/support": "~5",
+    "phptars/tars-server": "~0.1",
+    "phptars/tars-deploy": "~0.1",
+    "phptars/tars2php": "~0.1",
+    "phptars/tars-log": "~0.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "mockery/mockery": "*"
+  },
+  "autoload": {
+    "psr-4": {"Lxj\\Laravel\\Tars\\": "src/"}
+  }
+}
