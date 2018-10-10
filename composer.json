@@ -10,6 +10,7 @@
     }
   ],
   "require": {
+    "illuminate/console": "~5",
     "illuminate/support": "~5",
     "phptars/tars-server": "~0.1",
     "phptars/tars-deploy": "~0.1",
