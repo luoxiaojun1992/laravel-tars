@@ -15,10 +15,8 @@ class Registry
         }
     }
 
-    public static function down($hostname, $port)
+    public static function down($hostname, $port, $tarsDriverConfig)
     {
-        $tarsDriverConfig = config('tars');
-
         foreach ($tarsDriverConfig['registries'] as $registry) {
             if ($registry['type'] === 'kong') {
                 Kong::down($registry['url'], $hostname, $port);
