@@ -8,6 +8,9 @@ $cmd = strtolower($argv[2]);
 if ($cmd === 'stop') {
     include_once __DIR__ . '/vendor/autoload.php';
 
+    list($hostname, $port) = \Lxj\Laravel\Tars\Util::parseTarsConfig($config_path);
+    \Lxj\Laravel\Tars\Registries\Registry::down($hostname, $port);
+
     $class = new \Tars\cmd\Command($cmd, $config_path);
     $class->run();
 } else {

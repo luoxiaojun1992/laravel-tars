@@ -2,11 +2,11 @@
 
 namespace Lxj\Laravel\Tars\Commands;
 
-use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Lxj\Laravel\Tars\Registries\Registry;
+use Lxj\Laravel\Tars\Util;
 use Symfony\Component\Console\Input\InputOption;
 use Tars\cmd\Command as TarsCommand;
-use Tars\Utils;
 
 class Tars extends Command
 {
@@ -26,35 +26,10 @@ class Tars extends Command
         $cmd = $this->option('cmd');
         $cfg = $this->option('config_path');
 
-        list($hostname, $port) = $this->parseTarsConfig($cfg);
-        $this->register($hostname, $port);
+        list($hostname, $port) = Util::parseTarsConfig($cfg);
+        Registry::register($hostname, $port);
 
         $class = new TarsCommand($cmd, $cfg);
         $class->run();
-    }
-
-    private function parseTarsConfig($cfg)
-    {
-        $hostname = gethostname();
-        $tarsConfig = Utils::parseFile($cfg);
-        $tarsServerConf = $tarsConfig['tars']['application']['server'];
-        $port = $tarsServerConf['listen'][0]['iPort'];
-        return [$hostname, $port];
-    }
-
-    private function register($hostname, $port)
-    {
-        $tarsDriverConfig = config('tars');
-
-        foreach($tarsDriverConfig['registries'] as $registry) {
-            if ($registry['type'] === 'kong') {
-                (new Client())->request('POST', $registry['url'], [
-                    'form_params' => [
-                        'target' => $hostname . ':' . $port,
-                        'weight' => 100,
-                    ]
-                ]);
-            }
-        }
     }
 }
