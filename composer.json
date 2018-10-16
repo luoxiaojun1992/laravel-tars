@@ -16,7 +16,8 @@
     "phptars/tars-deploy": "~0.1",
     "phptars/tars2php": "~0.1",
     "phptars/tars-log": "~0.1",
-    "laravelista/lumen-vendor-publish": "*"
+    "laravelista/lumen-vendor-publish": "*",
+    "guzzlehttp/guzzle": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "*",

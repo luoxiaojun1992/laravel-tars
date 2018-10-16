@@ -35,10 +35,14 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return void
      */
-    public function boot(){
+    public function boot()
+    {
+        app()->configure('tars');
+
         $this->publishes([
             __DIR__ . '/index.php' => base_path('index.php'),
             __DIR__ . '/services.php' => base_path('services.php'),
+            __DIR__ . '/config/tars.php' => base_path('config/tars.php'),
         ]);
     }
 }
