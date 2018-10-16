@@ -5,6 +5,8 @@
 ### 描述
 Tars driver for laravel.
 
+Laravel集成微服务治理框架Tars
+
 ### 环境依赖
 1. Lumen5.x
 2. Tars-PHP
@@ -44,14 +46,24 @@ Tars driver for laravel.
    ```
    php artisan vendor:publish
    ```
+3. 如果需要自动注册到网关(目前仅支持Kong)，修改配置文件src/config/tars.php
+
+   ```php
+   'registries' => [
+        [
+            'type' => 'kong',
+            'url' => 'http://kong:8001/upstreams/tars_mysql8/targets', //根据实际情况填写
+        ]
+   ]
+   ```
    
-3. 编写业务逻辑代码，路由前缀必须为/Laravel/route
+4. 编写业务逻辑代码，路由前缀必须为/Laravel/route
 
-4. 搭建Tars-PHP开发环境，请参考[TARS-PHP-HTTP服务端与客户端开发](https://tangramor.gitlab.io/tars-docker-guide/TARS-PHP-HTTP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%80%E5%8F%91/)
+5. 搭建Tars-PHP开发环境，请参考[TARS-PHP-HTTP服务端与客户端开发](https://tangramor.gitlab.io/tars-docker-guide/TARS-PHP-HTTP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%80%E5%8F%91/)
 
-5. 在Tars-PHP开发环境下打包项目(在src目录下执行```php artisan tars:deploy```)
+6. 在Tars-PHP开发环境下打包项目(在src目录下执行```php artisan tars:deploy```)
 
-6. 在Tars管理后台发布项目(请参考[TARS-PHP-TCP服务端与客户端开发](https://tangramor.gitlab.io/tars-docker-guide/TARS-PHP-TCP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%80%E5%8F%91/))，测试```curl 'http://{ip}:{port}/Laravel/route/{api_route}'```
+7. 在Tars管理后台发布项目(请参考[TARS-PHP-TCP服务端与客户端开发](https://tangramor.gitlab.io/tars-docker-guide/TARS-PHP-TCP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%80%E5%8F%91/))，测试```curl 'http://{ip}:{port}/Laravel/route/{api_route}'```
 
 ### 使用示例
 请参考 [https://github.com/luoxiaojun1992/laravel-tars-demo](https://github.com/luoxiaojun1992/laravel-tars-demo)
