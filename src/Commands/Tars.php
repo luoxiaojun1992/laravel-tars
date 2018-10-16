@@ -26,14 +26,20 @@ class Tars extends Command
         $cmd = $this->option('cmd');
         $cfg = $this->option('config_path');
 
+        list($hostname, $port) = $this->parseTarsConfig($cfg);
+        $this->register($hostname, $port);
+
         $class = new TarsCommand($cmd, $cfg);
         $class->run();
+    }
 
+    private function parseTarsConfig($cfg)
+    {
         $hostname = gethostname();
         $tarsConfig = Utils::parseFile($cfg);
         $tarsServerConf = $tarsConfig['tars']['application']['server'];
         $port = $tarsServerConf['listen'][0]['iPort'];
-        $this->register($hostname, $port);
+        return [$hostname, $port];
     }
 
     private function register($hostname, $port)
