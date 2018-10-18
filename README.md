@@ -59,7 +59,7 @@ Laravel集成微服务治理框架Tars
 4. 如果需要使用配置中心(TarsConfig)，修改配置文件src/config/tars.php，服务启动时会自动拉取配置
 
    ```php
-   'tarsregistry' => 'tars.tarsregistry.QueryObj@tcp -h 172.17.0.3 -p 17890'
+   'tarsregistry' => 'tars.tarsregistry.QueryObj@tcp -h 172.17.0.3 -p 17890' //根据实际情况填写
    ```
    
 5. 编写业务逻辑代码，路由前缀必须为/Laravel/route
