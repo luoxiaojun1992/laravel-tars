@@ -3,6 +3,7 @@
 namespace Lxj\Laravel\Tars\Commands;
 
 use Illuminate\Console\Command;
+use Lxj\Laravel\Tars\Config;
 use Lxj\Laravel\Tars\Registries\Registry;
 use Lxj\Laravel\Tars\Util;
 use Symfony\Component\Console\Input\InputOption;
@@ -26,7 +27,19 @@ class Tars extends Command
         $cmd = $this->option('cmd');
         $cfg = $this->option('config_path');
 
-        list($hostname, $port) = Util::parseTarsConfig($cfg);
+        list($hostname, $port, $appName, $serverName) = Util::parseTarsConfig($cfg);
+
+        $localConfig = config('tars');
+        if (!empty($localConfig['tarsregistry'])) {
+            $configtext = Config::fetch($localConfig['tarsregistry'], $appName, $serverName);
+            if ($configtext) {
+                $remoteConfig = json_decode($configtext, true);
+                foreach ($remoteConfig as $configName => $configValue) {
+                    app('config')->set($configName, array_merge(config($configName) ? : [], $configValue));
+                }
+            }
+        }
+
         Registry::register($hostname, $port);
 
         $class = new TarsCommand($cmd, $cfg);

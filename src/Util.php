@@ -12,6 +12,8 @@ class Util
         $tarsConfig = Utils::parseFile($cfg);
         $tarsServerConf = $tarsConfig['tars']['application']['server'];
         $port = $tarsServerConf['listen'][0]['iPort'];
-        return [$hostname, $port];
+        $appName = $tarsServerConf['app'];
+        $serverName = $tarsServerConf['server'];
+        return [$hostname, $port, $appName, $serverName];
     }
 }

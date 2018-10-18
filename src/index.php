@@ -8,8 +8,20 @@ $cmd = strtolower($argv[2]);
 if ($cmd === 'stop') {
     include_once __DIR__ . '/vendor/autoload.php';
 
-    list($hostname, $port) = \Lxj\Laravel\Tars\Util::parseTarsConfig($config_path);
-    \Lxj\Laravel\Tars\Registries\Registry::down($hostname, $port, require_once __DIR__ . '/config/tars.php');
+    list($hostname, $port, $appName, $serverName) = \Lxj\Laravel\Tars\Util::parseTarsConfig($config_path);
+
+    $localConfig = require_once __DIR__ . '/config/tars.php';
+    if (!empty($localConfig['tarsregistry'])) {
+        $configtext = \Lxj\Laravel\Tars\Config::fetch($localConfig['tarsregistry'], $appName, $serverName);
+        if ($configtext) {
+            $remoteConfig = json_decode($configtext, true);
+            if (isset($remoteConfig['tars'])) {
+                $localConfig = array_merge($localConfig, $remoteConfig['tars']);
+            }
+        }
+    }
+
+    \Lxj\Laravel\Tars\Registries\Registry::down($hostname, $port, $localConfig);
 
     $class = new \Tars\cmd\Command($cmd, $config_path);
     $class->run();
