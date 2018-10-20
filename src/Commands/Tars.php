@@ -29,6 +29,16 @@ class Tars extends Command
 
         list($hostname, $port, $appName, $serverName) = Util::parseTarsConfig($cfg);
 
+        $this->fetchConfig($appName, $serverName);
+
+        Registry::register($hostname, $port);
+
+        $class = new TarsCommand($cmd, $cfg);
+        $class->run();
+    }
+
+    private function fetchConfig($appName, $serverName)
+    {
         $localConfig = config('tars');
         if (!empty($localConfig['tarsregistry'])) {
             $configtext = Config::fetch($localConfig['tarsregistry'], $appName, $serverName);
@@ -39,10 +49,5 @@ class Tars extends Command
                 }
             }
         }
-
-        Registry::register($hostname, $port);
-
-        $class = new TarsCommand($cmd, $cfg);
-        $class->run();
     }
 }
