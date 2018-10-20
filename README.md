@@ -56,10 +56,18 @@ Laravel集成微服务治理框架Tars
         ]
    ]
    ```
-4. 如果需要使用配置中心(TarsConfig)，修改配置文件src/config/tars.php，服务启动时会自动拉取配置
+4. 如果需要使用配置中心(TarsConfig)或者日志服务(TarsLog)，修改配置文件src/config/tars.php
 
    ```php
    'tarsregistry' => 'tars.tarsregistry.QueryObj@tcp -h 172.17.0.3 -p 17890' //根据实际情况填写，TarsConfig配置文件名称固定为'tars'
+   ```
+   
+   服务启动时会自动拉取配置，如果需要记录日志，可以使用类似```Log::info('test log');```
+   
+   如果需要指定TarsLog记录的最低日志级别，修改配置文件src/config/tars.php
+   
+   ```php
+   'log_level' => \Monolog\Logger::INFO
    ```
    
 5. 编写业务逻辑代码，路由前缀必须为/Laravel/route

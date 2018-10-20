@@ -12,7 +12,8 @@ if ($cmd === 'stop') {
 
     $localConfig = require_once __DIR__ . '/config/tars.php';
     if (!empty($localConfig['tarsregistry'])) {
-        $configtext = \Lxj\Laravel\Tars\Config::fetch($localConfig['tarsregistry'], $appName, $serverName);
+        $communicatorConfigLogLevel = isset($localConfig['communicator_config_log_level']) ? $localConfig['communicator_config_log_level'] : 'INFO';
+        $configtext = \Lxj\Laravel\Tars\Config::fetch($localConfig['tarsregistry'], $appName, $serverName, $communicatorConfigLogLevel);
         if ($configtext) {
             $remoteConfig = json_decode($configtext, true);
             if (isset($remoteConfig['tars'])) {
