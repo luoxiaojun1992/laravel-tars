@@ -31,6 +31,7 @@ if ($cmd === 'stop') {
     $_SERVER['argv'][1] = $argv[1] = 'tars:entry';
     $_SERVER['argv'][2] = $argv[2] = '--cmd=' . $cmd;
     $_SERVER['argv'][3] = $argv[3] = '--config_path=' . $config_path;
+    $_SERVER['argc'] = $argc = count($_SERVER['argv']);
 
     include_once __DIR__ . '/artisan';
 }
