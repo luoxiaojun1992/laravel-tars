@@ -4,11 +4,11 @@ return [
     'registries' => [
 //        [
 //            'type' => 'kong',
-//            'url' => 'http://kong:8001/upstreams/tars_mysql8/targets',
+//            'url' => env('KONG_UPSTREAM', ''),
 //        ]
     ],
 
-//    'tarsregistry' => 'tars.tarsregistry.QueryObj@tcp -h 172.17.0.3 -p 17890',
+//    'tarsregistry' => env('TARS_REGISTRY', ''),
 
 //    'log_level' => \Monolog\Logger::INFO,
 

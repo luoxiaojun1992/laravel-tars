@@ -8,6 +8,13 @@ $cmd = strtolower($argv[2]);
 if ($cmd === 'stop') {
     include_once __DIR__ . '/vendor/autoload.php';
 
+    //Load Env
+    try {
+        (new Dotenv\Dotenv(__DIR__ . '/'))->load();
+    } catch (Dotenv\Exception\InvalidPathException $e) {
+        //
+    }
+
     list($hostname, $port, $appName, $serverName) = \Lxj\Laravel\Tars\Util::parseTarsConfig($config_path);
 
     $localConfig = require_once __DIR__ . '/config/tars.php';
