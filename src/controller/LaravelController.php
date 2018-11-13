@@ -14,11 +14,44 @@ class LaravelController extends Controller
 
         $application = app();
 
+        ob_start();
+
         $illuminateResponse = $application->dispatch($illuminateRequest);
+
+        $content = $illuminateResponse->getContent();
+        if (strlen($content) === 0 && ob_get_length() > 0) {
+            $illuminateResponse->setContent(ob_get_contents());
+        }
+
+        ob_end_clean();
 
         $this->terminate($illuminateResponse);
 
+        $this->clean($illuminateRequest);
+
         Response::make($illuminateResponse, $this->getResponse())->send();
+    }
+
+    private function clean($illuminateRequest)
+    {
+        if ($illuminateRequest->hasSession()) {
+            $session = $illuminateRequest->getSession();
+            if (is_callable([$session, 'clear'])) {
+                $session->clear(); // @codeCoverageIgnore
+            } else {
+                $session->flush();
+            }
+        }
+
+        $application = app();
+
+        // Clean laravel cookie queue
+        if ($application->has('cookie')) {
+            $cookieJar = $application->make('cookie');
+            foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
+                $cookieJar->unqueue($name);
+            }
+        }
     }
 
     private function terminate($illuminateResponse)
