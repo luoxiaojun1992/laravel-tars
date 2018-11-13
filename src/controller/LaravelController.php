@@ -2,6 +2,8 @@
 
 namespace Lxj\Laravel\Tars\controller;
 
+use Illuminate\Auth\AuthServiceProvider;
+use Illuminate\Support\Facades\Facade;
 use Lxj\Laravel\Tars\Controller;
 use Lxj\Laravel\Tars\Request;
 use Lxj\Laravel\Tars\Response;
@@ -10,6 +12,8 @@ class LaravelController extends Controller
 {
     public function actionRoute()
     {
+        clearstatcache();
+
         $illuminateRequest = Request::make($this->getRequest())->toIlluminate();
 
         $application = app();
@@ -51,6 +55,18 @@ class LaravelController extends Controller
             foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
                 $cookieJar->unqueue($name);
             }
+        }
+
+        // Reflections
+        $reflection = new \ReflectionObject($application);
+        $loadedProviders = $reflection->getProperty('loadedProviders');
+        $loadedProviders->setAccessible(true);
+        $loadedProvidersValue = $loadedProviders->getValue($application);
+        if (array_key_exists(AuthServiceProvider::class, $loadedProvidersValue)) {
+            unset($loadedProvidersValue[AuthServiceProvider::class]);
+            $loadedProviders->setValue($application, $loadedProvidersValue);
+            $application->register(AuthServiceProvider::class);
+            Facade::clearResolvedInstance('auth');
         }
     }
 
