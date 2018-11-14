@@ -14,13 +14,24 @@ class LaravelController extends Controller
     {
         clearstatcache();
 
-        $illuminateRequest = Request::make($this->getRequest())->toIlluminate();
+        list($illuminateRequest, $illuminateResponse) = $this->handle();
 
-        $application = app();
+        $this->terminate($illuminateRequest, $illuminateResponse);
 
+        $this->clean($illuminateRequest);
+
+        $this->response($illuminateResponse);
+    }
+
+    private function handle()
+    {
         ob_start();
 
-        $illuminateResponse = $application->dispatch($illuminateRequest);
+        $illuminateRequest = Request::make($this->getRequest())->toIlluminate();
+
+        event('laravel.tars.requesting', [$illuminateRequest]);
+
+        $illuminateResponse = app()->dispatch($illuminateRequest);
 
         $content = $illuminateResponse->getContent();
         if (strlen($content) === 0 && ob_get_length() > 0) {
@@ -29,11 +40,27 @@ class LaravelController extends Controller
 
         ob_end_clean();
 
-        $this->terminate($illuminateResponse);
+        return [$illuminateRequest, $illuminateResponse];
+    }
 
-        $this->clean($illuminateRequest);
+    private function terminate($illuminateRequest, $illuminateResponse)
+    {
+        $application = app();
 
-        Response::make($illuminateResponse, $this->getResponse())->send();
+        // Reflections
+        $reflection = new \ReflectionObject($application);
+
+        $middleware = $reflection->getProperty('middleware');
+        $middleware->setAccessible(true);
+
+        $callTerminableMiddleware = $reflection->getMethod('callTerminableMiddleware');
+        $callTerminableMiddleware->setAccessible(true);
+
+        if (count($middleware->getValue($application)) > 0) {
+            $callTerminableMiddleware->invoke($application, $illuminateResponse);
+        }
+
+        event('laravel.tars.requested', [$illuminateRequest, $illuminateResponse]);
     }
 
     private function clean($illuminateRequest)
@@ -70,21 +97,8 @@ class LaravelController extends Controller
         }
     }
 
-    private function terminate($illuminateResponse)
+    private function response($illuminateResponse)
     {
-        $application = app();
-
-        // Reflections
-        $reflection = new \ReflectionObject($application);
-
-        $middleware = $reflection->getProperty('middleware');
-        $middleware->setAccessible(true);
-
-        $callTerminableMiddleware = $reflection->getMethod('callTerminableMiddleware');
-        $callTerminableMiddleware->setAccessible(true);
-
-        if (count($middleware->getValue($application)) > 0) {
-            $callTerminableMiddleware->invoke($application, $illuminateResponse);
-        }
+        Response::make($illuminateResponse, $this->getResponse())->send();
     }
 }

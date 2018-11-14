@@ -7,6 +7,15 @@ Tars driver for laravel.
 
 Laravel集成微服务治理框架Tars
 
+### 功能
+* 支持服务打包
+* 支持Lumen原生开发
+* 支持TarsConfig
+* 支持TarsLog
+* 支持网关注册下线
+* 支持请求开始(laravel.tars.requesting)、请求结束(laravel.tars.requested)事件
+* 支持echo输出内容
+
 ### 环境依赖
 1. Lumen5.x
 2. Tars-PHP
