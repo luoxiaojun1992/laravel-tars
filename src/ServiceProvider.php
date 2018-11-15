@@ -58,8 +58,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             __DIR__ . '/services.http.php' => base_path('services.php'),
             __DIR__ . '/config/tars.php' => base_path('config/tars.php'),
             __DIR__ . '/../tars/tars.proto.http.php' => base_path('../tars/tars.proto.php'),
-            __DIR__ . '/../scripts/.gitkeep' => $tarsServantDir . '/.gitkeep',
-            __DIR__ . '/../scripts/.gitkeep' => $tarsServantImplDir . '/.gitkeep',
             __DIR__ . '/../scripts/.gitkeep' => $tarsCservantDir . '/.gitkeep',
         ], 'tars.http');
 
