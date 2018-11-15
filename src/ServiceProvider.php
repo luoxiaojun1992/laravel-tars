@@ -47,10 +47,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             mkdir($tarsServantDir, 0777, true);
         }
         if (!is_dir($tarsServantImplDir)) {
-            mkdir($tarsServantDir, 0777, true);
+            mkdir($tarsServantImplDir, 0777, true);
         }
         if (!is_dir($tarsCservantDir)) {
-            mkdir($tarsServantDir, 0777, true);
+            mkdir($tarsCservantDir, 0777, true);
         }
 
         $this->publishes([
