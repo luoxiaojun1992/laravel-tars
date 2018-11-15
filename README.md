@@ -53,7 +53,7 @@ Laravel集成微服务治理框架Tars
    初始化Laravel Tars
    
    ```
-   php artisan vendor:publish
+   php artisan vendor:publish --tag=tars.http
    ```
 3. 如果需要自动注册到网关(目前仅支持Kong)，修改配置文件src/config/tars.php
 
