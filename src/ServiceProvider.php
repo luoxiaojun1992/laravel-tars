@@ -58,7 +58,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             __DIR__ . '/services.http.php' => base_path('services.php'),
             __DIR__ . '/config/tars.php' => base_path('config/tars.php'),
             __DIR__ . '/../tars/tars.proto.http.php' => base_path('../tars/tars.proto.php'),
-            __DIR__ . '/../scripts/.gitkeep' => $tarsCservantDir . '/.gitkeep',
+            __DIR__ . '/Tars/cservant/.gitkeep' => $tarsCservantDir . '/.gitkeep',
         ], 'tars.http');
 
         $this->publishes([
@@ -67,9 +67,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             __DIR__ . '/config/tars.php' => base_path('config/tars.php'),
             __DIR__ . '/../scripts/tars2php.sh' => base_path('../scripts/tars2php.sh'),
             __DIR__ . '/../tars/tars.proto.tars.php' => base_path('../tars/tars.proto.php'),
-            __DIR__ . '/../scripts/.gitkeep' => $tarsServantDir . '/.gitkeep',
-            __DIR__ . '/../scripts/.gitkeep' => $tarsServantImplDir . '/.gitkeep',
-            __DIR__ . '/../scripts/.gitkeep' => $tarsCservantDir . '/.gitkeep',
+            __DIR__ . '/Tars/servant/.gitkeep' => $tarsServantDir . '/.gitkeep',
+            __DIR__ . '/Tars/impl/.gitkeep' => $tarsServantImplDir . '/.gitkeep',
+            __DIR__ . '/Tars/cservant/.gitkeep' => $tarsCservantDir . '/.gitkeep',
         ], 'tars.tars');
     }
 }
