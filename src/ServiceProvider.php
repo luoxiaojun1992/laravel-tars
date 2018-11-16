@@ -44,13 +44,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $tarsCservantDir = base_path('app/Tars/cservant');
 
         if (!is_dir($tarsServantDir)) {
-            mkdir($tarsServantDir, 0777, true);
+            mkdir($tarsServantDir, 0755, true);
         }
         if (!is_dir($tarsServantImplDir)) {
-            mkdir($tarsServantImplDir, 0777, true);
+            mkdir($tarsServantImplDir, 0755, true);
         }
         if (!is_dir($tarsCservantDir)) {
-            mkdir($tarsCservantDir, 0777, true);
+            mkdir($tarsCservantDir, 0755, true);
         }
 
         $publicResources = [
