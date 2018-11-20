@@ -1,3 +1,3 @@
 <?php
-$tarsConfig = include __DIR__ . '/../src/config/tars.php';
-return $tarsConfig['proto'];
+$laravelTarsTmpTarsConfig = include __DIR__ . '/../src/config/tars.php';
+return $laravelTarsTmpTarsConfig['proto'];
