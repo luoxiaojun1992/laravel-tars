@@ -90,6 +90,15 @@ Laravel集成微服务治理框架Tars
    
 6. 如果使用http协议，按框架原生方式编写代码，路由前缀必须为/Laravel/route
 
+   ```php
+   $router->group(['prefix' => '/Laravel/route'], function () use ($router) {
+    $router->get('/test', function () {
+        \Illuminate\Support\Facades\Log::info('laravel tars test log');
+        return 'Laravel Tars Test Success';
+    });
+   });
+   ```
+
 7. 如果使用tars协议
 
    在tars目录下编写tars接口描述文件，修改配置文件src/config/tars文件proto字段，新增tarsFiles
