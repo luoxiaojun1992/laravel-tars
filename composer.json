@@ -26,5 +26,12 @@
   },
   "autoload": {
     "psr-4": {"Lxj\\Laravel\\Tars\\": "src/"}
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Lxj\\Laravel\\Tars\\ServiceProvider"
+      ]
+    }
   }
 }
