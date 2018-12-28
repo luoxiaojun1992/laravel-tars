@@ -125,3 +125,82 @@ Laravel集成微服务治理框架Tars
 
 ### 使用示例
 请参考 [https://github.com/luoxiaojun1992/laravel-tars-demo](https://github.com/luoxiaojun1992/laravel-tars-demo)
+
+### 集成部署
+Jenkins Pipeline 配置示例(根据实际情况修改)
+```
+pipeline {
+    agent {
+        node {
+            label 'phpenv'
+        }
+    }
+    parameters { 
+        string(defaultValue: 'upload_from_jenkins', name: 'TAG_DESC', description: '发布版本描述' )
+        string(defaultValue: 'master', name: 'BRANCH_NAME', description: 'git分支，如：develop,master  默认: master')
+    }
+    environment {
+        def JENKINS_HOME = "/root/jenkins"
+        def PROJECT_ROOT = "$JENKINS_HOME/workspace/laravel-tars-demo"
+        def APP_NAME = "PHPTest"
+        def SERVER_NAME = "PHPHTTPServer"
+    }
+    stages {
+        stage('代码拉取'){
+            steps {
+                echo "checkout from git"
+                git credentialsId:'2', url: 'https://gitee.com/lb002/laravel-tars-demo', branch: "${env.BRANCH_NAME}"
+            }
+        }
+        stage('单元测试') {
+            steps {
+                echo "phpunit 测试"
+                echo "valgrind 测试"
+            }
+        }
+        stage('覆盖率测试') {
+            steps {
+                echo "LCOV 覆盖率测试"
+            }
+        }
+        stage('编译与发布') {
+            steps {
+                script {
+                    dir("$PROJECT_ROOT/src") {
+                        echo "laravel-tars-demo 编译与发布"
+                        sh "composer install -vvv"
+                        sh "php artisan tars:deploy"
+                        sh "ls *.tar.gz > tmp.log"
+                        def packageDeploy = sh(script: "head -n 1 tmp.log", returnStdout: true).trim()
+                        sh "curl -H 'Host:172.18.0.3:3000' -F 'suse=@./${packageDeploy}' -F 'application=${APP_NAME}' -F 'module_name=${SERVER_NAME}' -F 'comment=${env.TAG_DESC}' http://172.18.0.3:3000/pages/server/api/upload_patch_package > curl.log"
+                        def packageVer = sh(script: "jq '.data.id' curl.log", returnStdout: true).trim()
+                        def postJson = '{"serial":true,"items":[{"server_id":30,"command":"patch_tars","parameters":{"patch_id":' + packageVer + ',"bak_flag":false,"update_text":"${env.TAG_DESC}"}}]}'
+                        echo postJson
+                        sh "curl -H 'Host:172.18.0.3:3000' -H 'Content-Type:application/json' -X POST --data '${postJson}' http://172.18.0.3:3000/pages/server/api/add_task"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            emailext (
+                subject: "[jenkins]构建通知：${env.JOB_NAME} 分支: ${env.BRANCH_NAME} - Build# ${env.BUILD_NUMBER} 成功  !",
+                body: '${SCRIPT, template="groovy-html.template"}',
+                mimeType: 'text/html',
+                to: "luoxiaojun1992@sina.cn",
+            )
+            cleanWs()
+        }
+        failure {
+            emailext (
+                subject: "[jenkins]构建通知：${env.JOB_NAME} 分支: ${env.BRANCH_NAME} - Build# ${env.BUILD_NUMBER} 失败 !",
+                body: '${SCRIPT, template="groovy-html.template"}',
+                mimeType: 'text/html',
+                to: "luoxiaojun1992@sina.cn",
+            )
+            cleanWs()
+        }
+    }
+}
+```
