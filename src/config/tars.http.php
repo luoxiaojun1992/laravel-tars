@@ -35,4 +35,6 @@ return [
         'serverName' => 'PHPHTTPServer', //根据实际情况替换
         'objName' => 'obj', //根据实际情况替换
     ],
+
+    'zipkin_url' => env('ZIPKIN_URL', ''),
 ];

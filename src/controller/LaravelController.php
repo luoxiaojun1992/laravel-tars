@@ -7,20 +7,42 @@ use Illuminate\Support\Facades\Facade;
 use Lxj\Laravel\Tars\Controller;
 use Lxj\Laravel\Tars\Request;
 use Lxj\Laravel\Tars\Response;
+use Lxj\Laravel\Tars\Trace;
 
 class LaravelController extends Controller
 {
     public function actionRoute()
     {
-        clearstatcache();
+        $callback = function () {
+            clearstatcache();
 
-        list($illuminateRequest, $illuminateResponse) = $this->handle();
+            list($illuminateRequest, $illuminateResponse) = $this->handle();
 
-        $this->terminate($illuminateRequest, $illuminateResponse);
+            $this->terminate($illuminateRequest, $illuminateResponse);
 
-        $this->clean($illuminateRequest);
+            $this->clean($illuminateRequest);
 
-        $this->response($illuminateResponse);
+            $this->response($illuminateResponse);
+        };
+
+        $tarsConfig = config('tars');
+        if (!empty($tarsConfig['zipkin_url'])) {
+            $serviceName = $tarsConfig['proto']['appName'] . '.' . $tarsConfig['proto']['serverName'] . '.' . $tarsConfig['proto']['objName'];
+            $request = $this->getRequest();
+            $header = isset($request->data['header']) ? $request->data['header'] : [];
+            foreach ($header as $k => $v) {
+                $header[strtolower($k)] = $v;
+            }
+            $traceId = isset($header['x-trace-id']) ? $header['x-trace-id'] : null;
+            $server = isset($request->data['server']) ? $request->data['server'] : [];
+            foreach ($server as $k => $v) {
+                $server[strtolower($k)] = $v;
+            }
+            $spanName = isset($server['request_uri']) ? $server['request_uri'] : 'request';
+            Trace::span($serviceName, $spanName, $tarsConfig['zipkin_url'], $callback, $traceId);
+        } else {
+            call_user_func($callback);
+        }
     }
 
     private function handle()
