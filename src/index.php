@@ -18,16 +18,6 @@ if ($cmd === 'stop') {
     list($hostname, $port, $appName, $serverName) = \Lxj\Laravel\Tars\Util::parseTarsConfig($config_path);
 
     $localConfig = include_once __DIR__ . '/config/tars.php';
-    if (!empty($localConfig['tarsregistry'])) {
-        $communicatorConfigLogLevel = isset($localConfig['communicator_config_log_level']) ? $localConfig['communicator_config_log_level'] : 'INFO';
-        $configtext = \Lxj\Laravel\Tars\Config::fetch($localConfig['tarsregistry'], $appName, $serverName, $communicatorConfigLogLevel);
-        if ($configtext) {
-            $remoteConfig = json_decode($configtext, true);
-            if (isset($remoteConfig['tars'])) {
-                $localConfig = array_merge($localConfig, $remoteConfig['tars']);
-            }
-        }
-    }
 
     \Lxj\Laravel\Tars\Registries\Registry::down($hostname, $port, $localConfig);
 
