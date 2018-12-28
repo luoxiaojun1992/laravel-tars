@@ -14,15 +14,20 @@ class LaravelController extends Controller
     public function actionRoute()
     {
         $callback = function () {
-            clearstatcache();
+            try {
+                clearstatcache();
 
-            list($illuminateRequest, $illuminateResponse) = $this->handle();
+                list($illuminateRequest, $illuminateResponse) = $this->handle();
 
-            $this->terminate($illuminateRequest, $illuminateResponse);
+                $this->terminate($illuminateRequest, $illuminateResponse);
 
-            $this->clean($illuminateRequest);
+                $this->clean($illuminateRequest);
 
-            $this->response($illuminateResponse);
+                $this->response($illuminateResponse);
+            } catch (\Exception $e) {
+                $this->status(500);
+                $this->sendRaw($e->getMessage() . '|' . $e->getTraceAsString());
+            }
         };
 
         $tarsConfig = config('tars');
@@ -58,9 +63,10 @@ class LaravelController extends Controller
         $content = $illuminateResponse->getContent();
         if (strlen($content) === 0 && ob_get_length() > 0) {
             $illuminateResponse->setContent(ob_get_contents());
+            ob_end_clean();
+        } else {
+            ob_end_flush();
         }
-
-        ob_end_clean();
 
         return [$illuminateRequest, $illuminateResponse];
     }
