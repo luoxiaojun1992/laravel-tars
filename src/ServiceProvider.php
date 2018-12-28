@@ -2,11 +2,9 @@
 
 namespace Lxj\Laravel\Tars;
 
-use Illuminate\Support\Facades\Log;
 use Laravelista\LumenVendorPublish\VendorPublishCommand;
 use Lxj\Laravel\Tars\Commands\Deploy;
 use Lxj\Laravel\Tars\Commands\Tars;
-use Monolog\Logger;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
@@ -81,39 +79,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             $this->booted = true;
         } else {
             if (!$this->tarsBooted) {
-                $localConfig = config('tars');
-
-                list($hostname, $port, $appName, $serverName) = Util::parseTarsConfig($localConfig['deploy_cfg']);
-
-                if (!empty($localConfig['tarsregistry'])) {
-                    $logLevel = isset($localConfig['log_level']) ? $localConfig['log_level'] : Logger::INFO;
-                    $communicatorConfigLogLevel = isset($localConfig['communicator_config_log_level']) ? $localConfig['communicator_config_log_level'] : 'INFO';
-
-                    $this->fetchConfig($localConfig['tarsregistry'], $appName, $serverName, $communicatorConfigLogLevel);
-
-                    $this->setTarsLog($localConfig['tarsregistry'], $appName, $serverName, $logLevel, $communicatorConfigLogLevel);
-                }
-
-                $this->tarsBooted = true;
+                Boot::handle();
             }
         }
-    }
-
-    private function fetchConfig($tarsregistry, $appName, $serverName, $logLevel = 'INFO')
-    {
-        $configtext = Config::fetch($tarsregistry, $appName, $serverName, $logLevel);
-        if ($configtext) {
-            $remoteConfig = json_decode($configtext, true);
-            foreach ($remoteConfig as $configName => $configValue) {
-                app('config')->set($configName, array_merge(config($configName) ?: [], $configValue));
-            }
-        }
-    }
-
-    private function setTarsLog($tarsregistry, $appName, $serverName, $level = Logger::INFO, $communicatorConfigLogLevel = 'INFO')
-    {
-        $config = Config::communicatorConfig($tarsregistry, $appName, $serverName, $communicatorConfigLogLevel);
-
-        Log::driver()->pushHandler(new \Tars\log\handler\TarsHandler($config, 'tars.tarslog.LogObj', $level));
     }
 }
