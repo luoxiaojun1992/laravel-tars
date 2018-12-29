@@ -41,6 +41,11 @@ class Trace
         ];
 
         $context = stream_context_create($contextOptions);
-        file_get_contents($zipkinUrl, false, $context);
+
+        try {
+            @file_get_contents($zipkinUrl, false, $context);
+        } catch (\Exception $e) {
+            //
+        }
     }
 }
