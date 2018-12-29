@@ -4,8 +4,13 @@ namespace Lxj\Laravel\Tars;
 
 class Trace
 {
-    public static function span($serviceName, $spanName, $zipkinUrl, $callback, $traceId = null)
+    public static function span($options, $callback)
     {
+        $serviceName = isset($options['service_name']) ? $options['service_name'] : 'tars-service';
+        $spanName = isset($options['span_name']) ? $options['span_name'] : 'request';
+        $zipkinUrl = isset($options['zipkin_url']) ? $options['zipkin_url'] : '';
+        $traceId = isset($options['trace_id']) ? $options['trace_id'] : null;
+
         $startTime = (int)((float) (new \DateTime('now'))->format('U.u') * 1000 * 1000);
 
         call_user_func($callback);

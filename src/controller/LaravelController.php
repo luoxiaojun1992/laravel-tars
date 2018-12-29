@@ -31,7 +31,14 @@ class LaravelController extends Controller
         };
 
         $tarsConfig = config('tars');
-        if (!empty($tarsConfig['zipkin_url'])) {
+        $needSample = false;
+        if (!empty($tarsConfig['trace']['zipkin_url']) && !empty($tarsConfig['trace']['sample_rate'])) {
+            srand(time());
+            if (mt_rand() / mt_getrandmax() <= $tarsConfig['trace']['sample_rate']) {
+                $needSample = true;
+            }
+        }
+        if ($needSample) {
             $serviceName = $tarsConfig['proto']['appName'] . '.' . $tarsConfig['proto']['serverName'] . '.' . $tarsConfig['proto']['objName'];
             $request = $this->getRequest();
             $header = isset($request->data['header']) ? $request->data['header'] : [];
@@ -44,7 +51,12 @@ class LaravelController extends Controller
                 $server[strtolower($k)] = $v;
             }
             $spanName = isset($server['request_uri']) ? $server['request_uri'] : 'request';
-            Trace::span($serviceName, $spanName, $tarsConfig['zipkin_url'], $callback, $traceId);
+            Trace::span([
+                'service_name' => $serviceName,
+                'span_name' => $spanName,
+                'zipkin_url' => $tarsConfig['trace']['zipkin_url'],
+                'trace_id' => $traceId,
+            ], $callback);
         } else {
             call_user_func($callback);
         }

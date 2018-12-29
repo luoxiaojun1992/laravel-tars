@@ -36,5 +36,8 @@ return [
         'objName' => 'obj', //根据实际情况替换
     ],
 
-    'zipkin_url' => env('ZIPKIN_URL', ''),
+    'trace' => [
+        'zipkin_url' => env('ZIPKIN_URL', ''),
+        'sample_rate' => 0, //根据实际情况替换
+    ],
 ];
