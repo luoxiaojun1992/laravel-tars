@@ -97,6 +97,8 @@ Laravel集成微服务治理框架Tars
 
    Trace ID可以通过header声明(x-trace-id)，如果为空默认随机生成，同一个Trace ID可以实现调用链追踪
 
+   ![zipkin demo](./docs/zipkin_demo.png)
+
 7. 如果使用http协议，按框架原生方式编写代码，路由前缀必须为/Laravel/route
 
    ```php
