@@ -33,7 +33,7 @@ class LaravelController extends Controller
         $tarsConfig = config('tars');
         $needSample = false;
         if (!empty($tarsConfig['trace']['zipkin_url']) && !empty($tarsConfig['trace']['sample_rate'])) {
-            if ($tarsConfig['trace']['sample_rate']) {
+            if ($tarsConfig['trace']['sample_rate'] >= 1) {
                 $needSample = true;
             } else {
                 mt_srand(time());
