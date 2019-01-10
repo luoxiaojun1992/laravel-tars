@@ -8,6 +8,7 @@ use Lxj\Laravel\Tars\Controller;
 use Lxj\Laravel\Tars\Request;
 use Lxj\Laravel\Tars\Response;
 use Lxj\Laravel\Tars\Trace;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LaravelController extends Controller
 {
