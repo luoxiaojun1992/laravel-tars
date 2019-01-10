@@ -69,6 +69,7 @@ class LaravelController extends Controller
     private function handle()
     {
         ob_start();
+        $isObEnd = false;
 
         $illuminateRequest = Request::make($this->getRequest())->toIlluminate();
 
@@ -76,12 +77,18 @@ class LaravelController extends Controller
 
         $illuminateResponse = app()->dispatch($illuminateRequest);
 
-        $content = $illuminateResponse->getContent();
-        if (strlen($content) === 0 && ob_get_length() > 0) {
-            $illuminateResponse->setContent(ob_get_contents());
-            ob_end_clean();
-        } else {
+        if (!($illuminateResponse instanceof BinaryFileResponse)) {
+            $content = $illuminateResponse->getContent();
+            if (strlen($content) === 0 && ob_get_length() > 0) {
+                $illuminateResponse->setContent(ob_get_contents());
+                ob_end_clean();
+                $isObEnd = true;
+            }
+        }
+
+        if (!$isObEnd) {
             ob_end_flush();
+            $isObEnd = true;
         }
 
         return [$illuminateRequest, $illuminateResponse];
