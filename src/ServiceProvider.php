@@ -80,6 +80,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         } else {
             if (!$this->tarsBooted) {
                 Boot::handle();
+                $this->tarsBooted = true;
             }
         }
     }
