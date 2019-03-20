@@ -4,6 +4,7 @@ namespace Lxj\Laravel\Tars\controller;
 
 use Illuminate\Auth\AuthServiceProvider;
 use Illuminate\Support\Facades\Facade;
+use Lxj\Laravel\Tars\Boot;
 use Lxj\Laravel\Tars\Controller;
 use Lxj\Laravel\Tars\Request;
 use Lxj\Laravel\Tars\Response;
@@ -14,6 +15,8 @@ class LaravelController extends Controller
 {
     public function actionRoute()
     {
+        Boot::handle();
+
         $request = $this->getRequest();
         $header = isset($request->data['header']) ? $request->data['header'] : [];
         foreach ($header as $k => $v) {
