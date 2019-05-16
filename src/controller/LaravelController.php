@@ -8,7 +8,6 @@ use Lxj\Laravel\Tars\Boot;
 use Lxj\Laravel\Tars\Controller;
 use Lxj\Laravel\Tars\Request;
 use Lxj\Laravel\Tars\Response;
-use Lxj\Laravel\Tars\Trace;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LaravelController extends Controller
@@ -17,73 +16,19 @@ class LaravelController extends Controller
     {
         Boot::handle();
 
-        $request = $this->getRequest();
-        $header = isset($request->data['header']) ? $request->data['header'] : [];
-        foreach ($header as $k => $v) {
-            $header[strtolower($k)] = $v;
-        }
-        $traceId = isset($header['x-trace-id']) ? $header['x-trace-id'] : null;
+        try {
+            clearstatcache();
 
-        $callback = function () use (&$traceId, $request) {
-            try {
-                clearstatcache();
+            list($illuminateRequest, $illuminateResponse) = $this->handle();
 
-                if (!isset($request->data)) {
-                    $request->data = [];
-                    $request->data['header'] = [];
-                } elseif (is_array($request->data) && !isset($request->data['header'])) {
-                    $request->data['header'] = [];
-                }
-                if (isset($request->data['header'])) {
-                    $request->data['header']['x-trace-id'] = $traceId;
-                }
+            $this->terminate($illuminateRequest, $illuminateResponse);
 
-                list($illuminateRequest, $illuminateResponse) = $this->handle();
+            $this->clean($illuminateRequest);
 
-                $this->terminate($illuminateRequest, $illuminateResponse);
-
-                $this->clean($illuminateRequest);
-
-                $this->response($illuminateResponse);
-            } catch (\Exception $e) {
-                $this->status(500);
-                $this->sendRaw($e->getMessage() . '|' . $e->getTraceAsString());
-            }
-        };
-
-        $tarsConfig = config('tars');
-        $needSample = false;
-        if (!empty($tarsConfig['trace']['zipkin_url'])) {
-            if ($traceId) {
-                $needSample = true;
-            } elseif (!empty($tarsConfig['trace']['sample_rate'])) {
-                if ($tarsConfig['trace']['sample_rate'] >= 1) {
-                    $needSample = true;
-                } else {
-                    mt_srand(time());
-                    if (mt_rand() / mt_getrandmax() <= $tarsConfig['trace']['sample_rate']) {
-                        $needSample = true;
-                    }
-                }
-            }
-        }
-        if ($needSample) {
-            $serviceName = $tarsConfig['proto']['appName'] . '.' . $tarsConfig['proto']['serverName'] . '.' . $tarsConfig['proto']['objName'];
-            $request = $this->getRequest();
-            $server = isset($request->data['server']) ? $request->data['server'] : [];
-            foreach ($server as $k => $v) {
-                $server[strtolower($k)] = $v;
-            }
-            $spanName = isset($server['request_uri']) ? $server['request_uri'] : 'request';
-            $traceId = $traceId ? : str_replace('-', '', \Ramsey\Uuid\Uuid::uuid4());
-            Trace::span([
-                'service_name' => $serviceName,
-                'span_name' => $spanName,
-                'zipkin_url' => $tarsConfig['trace']['zipkin_url'],
-                'trace_id' => $traceId,
-            ], $callback);
-        } else {
-            call_user_func($callback);
+            $this->response($illuminateResponse);
+        } catch (\Exception $e) {
+            $this->status(500);
+            $this->sendRaw($e->getMessage() . '|' . $e->getTraceAsString());
         }
     }
 

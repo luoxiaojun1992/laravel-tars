@@ -35,9 +35,4 @@ return [
         'serverName' => 'PHPHTTPServer', //根据实际情况替换
         'objName' => 'obj', //根据实际情况替换
     ],
-
-    'trace' => [
-        'zipkin_url' => env('ZIPKIN_URL', ''),
-        'sample_rate' => 0, //根据实际情况替换
-    ],
 ];

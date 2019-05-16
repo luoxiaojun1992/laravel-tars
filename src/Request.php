@@ -126,7 +126,7 @@ class Request
     protected static function toIlluminateParameters(TarsRequest $request)
     {
         $get = isset($request->data['get']) ? $request->data['get'] : [];
-        $post = $request->data['post'] ? : [];
+        $post = isset($request->data['post']) ? (is_array($request->data['post']) ? $request->data['post'] : []) : [];
         $cookie = isset($request->data['cookie']) ? $request->data['cookie'] : [];
         $files = isset($request->data['files']) ? $request->data['files'] : [];
         $header = isset($request->data['header']) ? $request->data['header'] : [];
