@@ -44,7 +44,7 @@ class LaravelController extends Controller
 
         event('laravel.tars.requesting', [$illuminateRequest]);
 
-        $application = app();
+        $application = Util::app();
 
         if (Util::isLumen()) {
             $illuminateResponse = $application->dispatch($illuminateRequest);
@@ -72,7 +72,7 @@ class LaravelController extends Controller
 
     private function terminate($illuminateRequest, $illuminateResponse)
     {
-        $application = app();
+        $application = Util::app();
 
         if (Util::isLumen()) {
             // Reflections
@@ -107,7 +107,7 @@ class LaravelController extends Controller
             }
         }
 
-        $application = app();
+        $application = Util::app();
 
         if (Util::isLumen()) {
             // Clean laravel cookie queue

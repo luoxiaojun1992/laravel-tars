@@ -41,7 +41,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function boot()
     {
         if (Util::isLumen()) {
-            app()->configure('tars');
+            Util::app()->configure('tars');
         }
 
         $tarsServantDir = base_path('app/Tars/servant');
