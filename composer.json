@@ -12,6 +12,7 @@
   "require": {
     "illuminate/console": "~5",
     "illuminate/support": "~5",
+    "illuminate/contracts": "~5",
     "vlucas/phpdotenv": "~2.2",
     "phptars/tars-server": "~0.2",
     "phptars/tars-deploy": "~0.1",

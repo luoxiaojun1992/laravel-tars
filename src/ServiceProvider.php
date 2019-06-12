@@ -23,11 +23,14 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->commands([
-            VendorPublishCommand::class,
+        $commands = [
             Deploy::class,
             Tars::class,
-        ]);
+        ];
+        if (Util::isLumen()) {
+            array_push($commands, VendorPublishCommand::class);
+        }
+        $this->commands($commands);
     }
 
     /**
@@ -37,7 +40,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function boot()
     {
-        app()->configure('tars');
+        if (Util::isLumen()) {
+            app()->configure('tars');
+        }
 
         $tarsServantDir = base_path('app/Tars/servant');
         $tarsServantImplDir = base_path('app/Tars/impl');
