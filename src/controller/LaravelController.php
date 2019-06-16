@@ -1,150 +1,40 @@
 <?php
+//php tarsCmd.php  conf restart
+use Dotenv\Dotenv;
 
-namespace Lxj\Laravel\Tars\controller;
+$config_path = $argv[1];
+$pos = strpos($config_path, '--config=');
+$config_path = substr($config_path, $pos + 9);
+$cmd = strtolower($argv[2]);
 
-use Illuminate\Auth\AuthServiceProvider;
-use Illuminate\Contracts\Cookie\QueueingFactory;
-use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Support\Facades\Facade;
-use Lxj\Laravel\Tars\Boot;
-use Lxj\Laravel\Tars\Controller;
-use Lxj\Laravel\Tars\Request;
-use Lxj\Laravel\Tars\Response;
-use Lxj\Laravel\Tars\Util;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+if ($cmd === 'stop') {
+    include_once __DIR__ . '/vendor/autoload.php';
 
-class LaravelController extends Controller
-{
-    public function actionRoute()
-    {
-        Boot::handle();
-
-        try {
-            clearstatcache();
-
-            list($illuminateRequest, $illuminateResponse) = $this->handle();
-
-            $this->terminate($illuminateRequest, $illuminateResponse);
-
-            $this->clean($illuminateRequest);
-
-            $this->response($illuminateResponse);
-        } catch (\Exception $e) {
-            $this->status(500);
-            $this->sendRaw($e->getMessage() . '|' . $e->getTraceAsString());
-        }
-    }
-
-    private function handle()
-    {
-        ob_start();
-        $isObEnd = false;
-
-        $illuminateRequest = Request::make($this->getRequest())->toIlluminate();
-
-        event('laravel.tars.requesting', [$illuminateRequest]);
-
-        $application = Util::app();
-
-        if (Util::isLumen()) {
-            $illuminateResponse = $application->dispatch($illuminateRequest);
+    //Load Env
+    try {
+        if (\Lxj\Laravel\Tars\Util::isLumen()) {
+            (new Dotenv\Dotenv(__DIR__ . '/'))->load();
         } else {
-            /** @var Kernel $kernel */
-            $kernel = $application->make(Kernel::class);
-            $illuminateResponse = $kernel->handle($illuminateRequest);
+            Dotenv::create(__DIR__ . '/');
         }
-
-        if (!($illuminateResponse instanceof BinaryFileResponse)) {
-            $content = $illuminateResponse->getContent();
-            if (strlen($content) === 0 && ob_get_length() > 0) {
-                $illuminateResponse->setContent(ob_get_contents());
-                ob_end_clean();
-                $isObEnd = true;
-            }
-        }
-
-        if (!$isObEnd) {
-            ob_end_flush();
-        }
-
-        return [$illuminateRequest, $illuminateResponse];
+    } catch (Dotenv\Exception\InvalidPathException $e) {
+        //
     }
 
-    private function terminate($illuminateRequest, $illuminateResponse)
-    {
-        $application = Util::app();
+    list($hostname, $port, $appName, $serverName) = \Lxj\Laravel\Tars\Util::parseTarsConfig($config_path);
 
-        if (Util::isLumen()) {
-            // Reflections
-            $reflection = new \ReflectionObject($application);
+    $localConfig = include_once __DIR__ . '/config/tars.php';
 
-            $middleware = $reflection->getProperty('middleware');
-            $middleware->setAccessible(true);
+    \Lxj\Laravel\Tars\Registries\Registry::down($hostname, $port, $localConfig);
 
-            $callTerminableMiddleware = $reflection->getMethod('callTerminableMiddleware');
-            $callTerminableMiddleware->setAccessible(true);
+    $class = new \Tars\cmd\Command($cmd, $config_path);
+    $class->run();
+} else {
+    $_SERVER['argv'][0] = $argv[0] = __DIR__ .'/artisan';
+    $_SERVER['argv'][1] = $argv[1] = 'tars:entry';
+    $_SERVER['argv'][2] = $argv[2] = '--cmd=' . $cmd;
+    $_SERVER['argv'][3] = $argv[3] = '--config_path=' . $config_path;
+    $_SERVER['argc'] = $argc = count($_SERVER['argv']);
 
-            if (count($middleware->getValue($application)) > 0) {
-                $callTerminableMiddleware->invoke($application, $illuminateResponse);
-            }
-        } else {
-            /** @var Kernel $kernel */
-            $kernel = $application->make(Kernel::class);
-            $kernel->terminate($illuminateRequest, $illuminateResponse);
-        }
-
-        event('laravel.tars.requested', [$illuminateRequest, $illuminateResponse]);
-    }
-
-    private function clean($illuminateRequest)
-    {
-        if ($illuminateRequest->hasSession()) {
-            $session = $illuminateRequest->getSession();
-            if (is_callable([$session, 'clear'])) {
-                $session->clear(); // @codeCoverageIgnore
-            } else {
-                $session->flush();
-            }
-        }
-
-        $application = Util::app();
-
-        if (Util::isLumen()) {
-            // Clean laravel cookie queue
-            if ($application->has('cookie')) {
-                $cookieJar = $application->make('cookie');
-                foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
-                    $cookieJar->unqueue($name);
-                }
-            }
-
-            // Reflections
-            $reflection = new \ReflectionObject($application);
-            $loadedProviders = $reflection->getProperty('loadedProviders');
-            $loadedProviders->setAccessible(true);
-            $loadedProvidersValue = $loadedProviders->getValue($application);
-            if (array_key_exists(AuthServiceProvider::class, $loadedProvidersValue)) {
-                unset($loadedProvidersValue[AuthServiceProvider::class]);
-                $loadedProviders->setValue($application, $loadedProvidersValue);
-                $application->register(AuthServiceProvider::class);
-                Facade::clearResolvedInstance('auth');
-            }
-        } else {
-            // Clean laravel cookie queue
-            $cookies = $application->make(QueueingFactory::class);
-            foreach ($cookies->getQueuedCookies() as $name => $cookie) {
-                $cookies->unqueue($name);
-            }
-
-            if ($application->isProviderLoaded(AuthServiceProvider::class)) {
-                $application->register(AuthServiceProvider::class, [], true);
-                Facade::clearResolvedInstance('auth');
-            }
-        }
-    }
-
-    private function response($illuminateResponse)
-    {
-        Response::make($illuminateResponse, $this->getResponse())->send();
-    }
+    include_once __DIR__ . '/artisan';
 }

@@ -1,5 +1,7 @@
 <?php
 //php tarsCmd.php  conf restart
+use Dotenv\Dotenv;
+
 $config_path = $argv[1];
 $pos = strpos($config_path, '--config=');
 $config_path = substr($config_path, $pos + 9);
@@ -10,7 +12,11 @@ if ($cmd === 'stop') {
 
     //Load Env
     try {
-        (new Dotenv\Dotenv(__DIR__ . '/'))->load();
+        if (\Lxj\Laravel\Tars\Util::isLumen()) {
+            (new Dotenv\Dotenv(__DIR__ . '/'))->load();
+        } else {
+            Dotenv::create(__DIR__ . '/');
+        }
     } catch (Dotenv\Exception\InvalidPathException $e) {
         //
     }
