@@ -9,7 +9,7 @@ Laravel集成微服务治理框架Tars
 
 ### 功能
 * 支持服务打包
-* 支持Lumen原生开发
+* 支持Laravel/Lumen原生开发
 * 支持TarsConfig
 * 支持TarsLog
 * 支持网关注册下线
@@ -19,14 +19,14 @@ Laravel集成微服务治理框架Tars
 * 支持zipkin分布式追踪(已移除，可以使用[laravel-zipkin扩展包](https://github.com/luoxiaojun1992/laravel-zipkin))
 
 ### 环境依赖
-1. Lumen5.x
+1. Laravel/Lumen5.x
 2. Tars-PHP
 
 ### 安装
 
 1. 创建项目
 
-   创建Tars项目目录结构(scripts、src、tars)，Lumen项目放在src目录下
+   创建Tars项目目录结构(scripts、src、tars)，Laravel/Lumen项目放在src目录下
 
 2. 安装Laravel Tars包
 
@@ -125,7 +125,8 @@ Laravel集成微服务治理框架Tars
 10. 在Tars管理后台发布项目，请参考[TARS-PHP-TCP服务端与客户端开发](https://tangramor.gitlab.io/tars-docker-guide/2.TARS-PHP-TCP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%80%E5%8F%91/))，测试```curl 'http://{ip}:{port}/Laravel/route/{api_route}'```
 
 ### 使用示例
-请参考 [https://github.com/luoxiaojun1992/laravel-tars-demo](https://github.com/luoxiaojun1992/laravel-tars-demo)
+Laravel请参考 [https://github.com/luoxiaojun1992/laravel-tars-demo](https://github.com/luoxiaojun1992/laravel-tars-demo)
+Lumen请参考 [https://github.com/luoxiaojun1992/lumen-tars-demo](https://github.com/luoxiaojun1992/lumen-tars-demo)
 
 ### 集成部署
 Jenkins Pipeline 配置示例(根据实际情况修改)
