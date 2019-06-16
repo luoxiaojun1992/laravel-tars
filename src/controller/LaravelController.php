@@ -136,8 +136,8 @@ class LaravelController extends Controller
                 $cookies->unqueue($name);
             }
 
-            if ($this->app->isProviderLoaded(AuthServiceProvider::class)) {
-                $this->app->register(AuthServiceProvider::class, [], true);
+            if ($application->isProviderLoaded(AuthServiceProvider::class)) {
+                $application->register(AuthServiceProvider::class, [], true);
                 Facade::clearResolvedInstance('auth');
             }
         }
