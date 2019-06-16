@@ -16,4 +16,14 @@ class Util
         $serverName = $tarsServerConf['server'];
         return [$hostname, $port, $appName, $serverName];
     }
+
+    public static function isLumen()
+    {
+        return class_exists('Laravel\Lumen\Application') && self::app() instanceof \Laravel\Lumen\Application;
+    }
+
+    public static function app()
+    {
+        return app();
+    }
 }

@@ -3,11 +3,14 @@
 namespace Lxj\Laravel\Tars\controller;
 
 use Illuminate\Auth\AuthServiceProvider;
+use Illuminate\Contracts\Cookie\QueueingFactory;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Facade;
 use Lxj\Laravel\Tars\Boot;
 use Lxj\Laravel\Tars\Controller;
 use Lxj\Laravel\Tars\Request;
 use Lxj\Laravel\Tars\Response;
+use Lxj\Laravel\Tars\Util;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LaravelController extends Controller
@@ -41,7 +44,15 @@ class LaravelController extends Controller
 
         event('laravel.tars.requesting', [$illuminateRequest]);
 
-        $illuminateResponse = app()->dispatch($illuminateRequest);
+        $application = Util::app();
+
+        if (Util::isLumen()) {
+            $illuminateResponse = $application->dispatch($illuminateRequest);
+        } else {
+            /** @var Kernel $kernel */
+            $kernel = $application->make(Kernel::class);
+            $illuminateResponse = $kernel->handle($illuminateRequest);
+        }
 
         if (!($illuminateResponse instanceof BinaryFileResponse)) {
             $content = $illuminateResponse->getContent();
@@ -54,7 +65,6 @@ class LaravelController extends Controller
 
         if (!$isObEnd) {
             ob_end_flush();
-            $isObEnd = true;
         }
 
         return [$illuminateRequest, $illuminateResponse];
@@ -62,19 +72,25 @@ class LaravelController extends Controller
 
     private function terminate($illuminateRequest, $illuminateResponse)
     {
-        $application = app();
+        $application = Util::app();
 
-        // Reflections
-        $reflection = new \ReflectionObject($application);
+        if (Util::isLumen()) {
+            // Reflections
+            $reflection = new \ReflectionObject($application);
 
-        $middleware = $reflection->getProperty('middleware');
-        $middleware->setAccessible(true);
+            $middleware = $reflection->getProperty('middleware');
+            $middleware->setAccessible(true);
 
-        $callTerminableMiddleware = $reflection->getMethod('callTerminableMiddleware');
-        $callTerminableMiddleware->setAccessible(true);
+            $callTerminableMiddleware = $reflection->getMethod('callTerminableMiddleware');
+            $callTerminableMiddleware->setAccessible(true);
 
-        if (count($middleware->getValue($application)) > 0) {
-            $callTerminableMiddleware->invoke($application, $illuminateResponse);
+            if (count($middleware->getValue($application)) > 0) {
+                $callTerminableMiddleware->invoke($application, $illuminateResponse);
+            }
+        } else {
+            /** @var Kernel $kernel */
+            $kernel = $application->make(Kernel::class);
+            $kernel->terminate($illuminateRequest, $illuminateResponse);
         }
 
         event('laravel.tars.requested', [$illuminateRequest, $illuminateResponse]);
@@ -91,26 +107,40 @@ class LaravelController extends Controller
             }
         }
 
-        $application = app();
+        $application = Util::app();
 
-        // Clean laravel cookie queue
-        if ($application->has('cookie')) {
-            $cookieJar = $application->make('cookie');
-            foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
-                $cookieJar->unqueue($name);
+        if (Util::isLumen()) {
+            // Clean laravel cookie queue
+            if ($application->has('cookie')) {
+                $cookieJar = $application->make('cookie');
+                foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
+                    $cookieJar->unqueue($name);
+                }
             }
-        }
 
-        // Reflections
-        $reflection = new \ReflectionObject($application);
-        $loadedProviders = $reflection->getProperty('loadedProviders');
-        $loadedProviders->setAccessible(true);
-        $loadedProvidersValue = $loadedProviders->getValue($application);
-        if (array_key_exists(AuthServiceProvider::class, $loadedProvidersValue)) {
-            unset($loadedProvidersValue[AuthServiceProvider::class]);
-            $loadedProviders->setValue($application, $loadedProvidersValue);
-            $application->register(AuthServiceProvider::class);
-            Facade::clearResolvedInstance('auth');
+            // Reflections
+            $reflection = new \ReflectionObject($application);
+            $loadedProviders = $reflection->getProperty('loadedProviders');
+            $loadedProviders->setAccessible(true);
+            $loadedProvidersValue = $loadedProviders->getValue($application);
+            if (array_key_exists(AuthServiceProvider::class, $loadedProvidersValue)) {
+                unset($loadedProvidersValue[AuthServiceProvider::class]);
+                $loadedProviders->setValue($application, $loadedProvidersValue);
+                $application->register(AuthServiceProvider::class);
+                Facade::clearResolvedInstance('auth');
+            }
+        } else {
+            // Clean laravel cookie queue
+            $cookies = $application->make(QueueingFactory::class);
+            foreach ($cookies->getQueuedCookies() as $name => $cookie) {
+                $cookies->unqueue($name);
+            }
+
+            $loadedProviders = $application->getLoadedProviders();
+            if (isset($loadedProviders[AuthServiceProvider::class])) {
+                $application->register(AuthServiceProvider::class, true);
+                Facade::clearResolvedInstance('auth');
+            }
         }
     }
 
