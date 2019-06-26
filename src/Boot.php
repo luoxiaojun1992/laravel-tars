@@ -4,6 +4,7 @@ namespace Lxj\Laravel\Tars;
 
 use Illuminate\Support\Facades\Log;
 use Monolog\Logger;
+use Tars\App;
 
 class Boot
 {
@@ -14,24 +15,27 @@ class Boot
         if (!self::$booted) {
             $localConfig = config('tars');
 
-            list($hostname, $port, $appName, $serverName) = Util::parseTarsConfig($localConfig['deploy_cfg']);
-
             if (!empty($localConfig['tarsregistry'])) {
                 $logLevel = isset($localConfig['log_level']) ? $localConfig['log_level'] : Logger::INFO;
-                $communicatorConfigLogLevel = isset($localConfig['communicator_config_log_level']) ? $localConfig['communicator_config_log_level'] : 'INFO';
 
-                self::fetchConfig($localConfig['tarsregistry'], $appName, $serverName, $communicatorConfigLogLevel);
+                $deployConfig = App::getTarsConfig();
+                $tarsServerConf = $deployConfig['tars']['application']['server'];
+                $port = $tarsServerConf['listen'][0]['iPort'];
+                $appName = $tarsServerConf['app'];
+                $serverName = $tarsServerConf['server'];
 
-                self::setTarsLog($localConfig['tarsregistry'], $appName, $serverName, $logLevel, $communicatorConfigLogLevel);
+                self::fetchConfig($localConfig['deploy_cfg'], $appName, $serverName);
+
+                self::setTarsLog($localConfig['deploy_cfg']);
             }
 
             self::$booted = true;
         }
     }
 
-    private static function fetchConfig($tarsregistry, $appName, $serverName, $logLevel = 'INFO')
+    private static function fetchConfig($deployConfigPath, $appName, $serverName)
     {
-        $configtext = Config::fetch($tarsregistry, $appName, $serverName, $logLevel);
+        $configtext = Config::fetch($deployConfigPath, $appName, $serverName);
         if ($configtext) {
             $remoteConfig = json_decode($configtext, true);
             foreach ($remoteConfig as $configName => $configValue) {
@@ -40,9 +44,9 @@ class Boot
         }
     }
 
-    private static function setTarsLog($tarsregistry, $appName, $serverName, $level = Logger::INFO, $communicatorConfigLogLevel = 'INFO')
+    private static function setTarsLog($deployConfigPath, $level = Logger::INFO)
     {
-        $config = Config::communicatorConfig($tarsregistry, $appName, $serverName, $communicatorConfigLogLevel);
+        $config = Config::communicatorConfig($deployConfigPath);
 
         Log::driver()->pushHandler(new \Tars\log\handler\TarsHandler($config, 'tars.tarslog.LogObj', $level));
     }
