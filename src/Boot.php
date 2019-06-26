@@ -15,19 +15,16 @@ class Boot
         if (!self::$booted) {
             $localConfig = config('tars');
 
-            if (!empty($localConfig['tarsregistry'])) {
-                $logLevel = isset($localConfig['log_level']) ? $localConfig['log_level'] : Logger::INFO;
+            $logLevel = isset($localConfig['log_level']) ? $localConfig['log_level'] : Logger::INFO;
 
-                $deployConfig = App::getTarsConfig();
-                $tarsServerConf = $deployConfig['tars']['application']['server'];
-                $port = $tarsServerConf['listen'][0]['iPort'];
-                $appName = $tarsServerConf['app'];
-                $serverName = $tarsServerConf['server'];
+            $deployConfig = App::getTarsConfig();
+            $tarsServerConf = $deployConfig['tars']['application']['server'];
+            $appName = $tarsServerConf['app'];
+            $serverName = $tarsServerConf['server'];
 
-                self::fetchConfig($localConfig['deploy_cfg'], $appName, $serverName);
+            self::fetchConfig($localConfig['deploy_cfg'], $appName, $serverName);
 
-                self::setTarsLog($localConfig['deploy_cfg']);
-            }
+            self::setTarsLog($localConfig['deploy_cfg'], $logLevel);
 
             self::$booted = true;
         }
