@@ -58,22 +58,15 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             mkdir($tarsCservantDir, 0755, true);
         }
 
-        $publicResources = [
+        $this->publishes([
             __DIR__ . '/index.php' => base_path('index.php'),
             __DIR__ . '/Tars/cservant/.gitkeep' => $tarsCservantDir . '/.gitkeep',
             __DIR__ . '/services.php' => base_path('services.php'),
             __DIR__ . '/../tars/tars.proto.php' => base_path('../tars/tars.proto.php'),
-        ];
-
-        $this->publishes(array_merge($publicResources, [
-            __DIR__ . '/config/tars.http.php' => base_path('config/tars.php'),
-        ]), 'tars.http');
-
-        $this->publishes(array_merge($publicResources, [
-            __DIR__ . '/config/tars.tars.php' => base_path('config/tars.php'),
+            __DIR__ . '/config/tars.php' => base_path('config/tars.php'),
             __DIR__ . '/../scripts/tars2php.sh' => base_path('../scripts/tars2php.sh'),
             __DIR__ . '/Tars/servant/.gitkeep' => $tarsServantDir . '/.gitkeep',
             __DIR__ . '/Tars/impl/.gitkeep' => $tarsServantImplDir . '/.gitkeep',
-        ]), 'tars.tars');
+        ], 'tars');
     }
 }
