@@ -3,6 +3,13 @@
 return [
 //    'log_level' => \Monolog\Logger::INFO,
 
+    'registries' => [
+//        [
+//            'type' => 'kong',
+//            'url' => 'http://kong:8001/upstreams/tars_mysql8/targets',
+//        ]
+    ],
+
     'services' => [
         'httpObj' => [
             'protocolName' => 'http', //http, json, tars or other
