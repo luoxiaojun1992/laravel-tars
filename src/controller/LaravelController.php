@@ -46,6 +46,8 @@ class LaravelController extends Controller
 
         $application = Util::app();
 
+        $application->bind('request',$illuminateRequest);//绑定到容器
+
         if (Util::isLumen()) {
             $illuminateResponse = $application->dispatch($illuminateRequest);
         } else {
