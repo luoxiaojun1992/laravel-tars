@@ -6,6 +6,8 @@ use Tars\Utils;
 
 class Util
 {
+    protected static $app;
+
     public static function parseTarsConfig($cfg)
     {
         $hostname = gethostname();
@@ -19,11 +21,19 @@ class Util
 
     public static function isLumen()
     {
-        return class_exists('Laravel\Lumen\Application') && self::app() instanceof \Laravel\Lumen\Application;
+        return class_exists('Laravel\Lumen\Application') && app() instanceof \Laravel\Lumen\Application;
     }
 
     public static function app()
     {
-        return app();
+        if (self::$app) {
+            return self::$app;
+        }
+        return self::$app = self::createApp();
+    }
+
+    protected static function createApp()
+    {
+        return include app()->basePath('bootstrap/app.php');
     }
 }
