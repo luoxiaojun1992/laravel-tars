@@ -46,15 +46,14 @@ class Boot
         $communicatorConfig = Config::communicatorConfig($deployConfigPath);
         $tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
 
-        if (version_compare(Util::app()->version(), '5.6', 'ge')) {
-            Log::driver()->pushHandler($tarsLogHandler);
+        $logger = Util::app()->make('log');
+        if (method_exists($logger, 'driver')) {
+            $logger->driver()->pushHandler($tarsLogHandler);
         } else {
-            $logWriter = Util::app()->make('log');
-
-            $reflectionObj = new \ReflectionObject($logWriter);
+            $reflectionObj = new \ReflectionObject($logger);
             $monologProp = $reflectionObj->getProperty('monolog');
             $monologProp->setAccessible(true);
-            $monolog = $monologProp->getValue($logWriter);
+            $monolog = $monologProp->getValue($logger);
 
             $monolog->pushHandler($tarsLogHandler);
         }
