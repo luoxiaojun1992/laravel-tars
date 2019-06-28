@@ -32,7 +32,7 @@ class Util
         return self::$app = self::createApp();
     }
 
-    protected static function createApp()
+    public static function createApp()
     {
         return include app()->basePath('bootstrap/app.php');
     }

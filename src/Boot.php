@@ -2,7 +2,6 @@
 
 namespace Lxj\Laravel\Tars;
 
-use Illuminate\Support\Facades\Log;
 use Monolog\Logger;
 use Tars\App;
 
@@ -46,7 +45,7 @@ class Boot
         $communicatorConfig = Config::communicatorConfig($deployConfigPath);
         $tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
 
-        $logger = Util::app()->make('log');
+        $logger = app()->make('log');
         if (method_exists($logger, 'driver')) {
             $logger->driver()->pushHandler($tarsLogHandler);
         } else {
