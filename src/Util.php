@@ -23,17 +23,4 @@ class Util
     {
         return class_exists('Laravel\Lumen\Application') && app() instanceof \Laravel\Lumen\Application;
     }
-
-    public static function app()
-    {
-        if (self::$app) {
-            return self::$app;
-        }
-        return self::$app = self::createApp();
-    }
-
-    public static function createApp()
-    {
-        return include app()->basePath('bootstrap/app.php');
-    }
 }

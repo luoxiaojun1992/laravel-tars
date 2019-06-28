@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LaravelController extends Controller
 {
+    private static $app;
+
     public function actionRoute()
     {
         Boot::handle();
@@ -44,7 +46,7 @@ class LaravelController extends Controller
 
         event('laravel.tars.requesting', [$illuminateRequest]);
 
-        $application = Util::app();
+        $application = $this->app();
 
         if (Util::isLumen()) {
             $illuminateResponse = $application->dispatch($illuminateRequest);
@@ -72,7 +74,7 @@ class LaravelController extends Controller
 
     private function terminate($illuminateRequest, $illuminateResponse)
     {
-        $application = Util::app();
+        $application = $this->app();
 
         if (Util::isLumen()) {
             // Reflections
@@ -107,7 +109,7 @@ class LaravelController extends Controller
             }
         }
 
-        $application = Util::app();
+        $application = $this->app();
 
         if (Util::isLumen()) {
             // Clean laravel cookie queue
@@ -147,5 +149,18 @@ class LaravelController extends Controller
     private function response($illuminateResponse)
     {
         Response::make($illuminateResponse, $this->getResponse())->send();
+    }
+
+    public function app()
+    {
+        if (self::$app) {
+            return self::$app;
+        }
+        return self::$app = $this->createApp();
+    }
+
+    public function createApp()
+    {
+        return include app()->basePath('bootstrap/app.php');
     }
 }
