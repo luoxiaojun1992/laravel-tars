@@ -46,6 +46,8 @@ class LaravelController extends Controller
 
         $application = Util::app();
 
+        $application->instance('request',$illuminateRequest);
+
         if (Util::isLumen()) {
             $illuminateResponse = $application->dispatch($illuminateRequest);
         } else {

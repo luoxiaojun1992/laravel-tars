@@ -46,7 +46,7 @@ class Boot
         $communicatorConfig = Config::communicatorConfig($deployConfigPath);
         $tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
 
-        if (version_compare(Util::app()->version(), '5.5', 'gt')) {
+        if (preg_match('~\d+(\.\d+)*~',Util::app()->version(),$version) && version_compare($version[0], '5.5', 'gt')) {
             Log::driver()->pushHandler($tarsLogHandler);
         } else {
             $logWriter = Util::app()->make('log');
