@@ -43,8 +43,20 @@ class Boot
 
     private static function setTarsLog($deployConfigPath, $level = Logger::INFO)
     {
-        $config = Config::communicatorConfig($deployConfigPath);
+        $communicatorConfig = Config::communicatorConfig($deployConfigPath);
+        $tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
 
-        Log::driver()->pushHandler(new \Tars\log\handler\TarsHandler($config, 'tars.tarslog.LogObj', $level));
+        if (version_compare(Util::app()->version(), '5.5', 'gt')) {
+            Log::driver()->pushHandler($tarsLogHandler);
+        } else {
+            $logWriter = Util::app()->make('log');
+
+            $reflectionObj = new \ReflectionObject($logWriter);
+            $monologProp = $reflectionObj->getProperty('monolog');
+            $monologProp->setAccessible(true);
+            $monolog = $monologProp->getValue($logWriter);
+
+            $monolog->pushHandler($tarsLogHandler);
+        }
     }
 }
