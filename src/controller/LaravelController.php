@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LaravelController extends Controller
 {
-    private static $app;
+    protected static $app;
 
     public function actionRoute()
     {
@@ -37,7 +37,7 @@ class LaravelController extends Controller
         }
     }
 
-    private function handle()
+    protected function handle()
     {
         ob_start();
         $isObEnd = false;
@@ -72,7 +72,7 @@ class LaravelController extends Controller
         return [$illuminateRequest, $illuminateResponse];
     }
 
-    private function terminate($illuminateRequest, $illuminateResponse)
+    protected function terminate($illuminateRequest, $illuminateResponse)
     {
         $application = $this->app();
 
@@ -98,7 +98,7 @@ class LaravelController extends Controller
         event('laravel.tars.requested', [$illuminateRequest, $illuminateResponse]);
     }
 
-    private function clean($illuminateRequest)
+    protected function clean($illuminateRequest)
     {
         if ($illuminateRequest->hasSession()) {
             $session = $illuminateRequest->getSession();
@@ -146,12 +146,12 @@ class LaravelController extends Controller
         }
     }
 
-    private function response($illuminateResponse)
+    protected function response($illuminateResponse)
     {
         Response::make($illuminateResponse, $this->getResponse())->send();
     }
 
-    public function app()
+    protected function app()
     {
         if (self::$app) {
             return self::$app;
@@ -159,7 +159,7 @@ class LaravelController extends Controller
         return self::$app = $this->createApp();
     }
 
-    public function createApp()
+    protected function createApp()
     {
         return include app()->basePath('bootstrap/app.php');
     }
