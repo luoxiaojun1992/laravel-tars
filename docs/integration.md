@@ -12,21 +12,45 @@
 复用的好处在于不需要重复实现tars的基础能力，减少开发量，避免重复踩坑，只需要解决与框架的适配问题。
 
 ```php
-//把TarsPHP入口脚本的参数转换成Laravel框架Command脚本的参数
+//把TarsPHP入口脚本的参数转换成Laravel的Command参数
 $_SERVER['argv'][0] = $argv[0] = __DIR__ .'/artisan';
 $_SERVER['argv'][1] = $argv[1] = 'tars:entry';
 $_SERVER['argv'][2] = $argv[2] = '--cmd=' . $cmd;
 $_SERVER['argv'][3] = $argv[3] = '--config_path=' . $config_path;
 $_SERVER['argc'] = $argc = count($_SERVER['argv']);
+
+//执行Laravel的Command
+include_once __DIR__ . '/artisan';
 ```
 
 ```php
-//在Laravel框架的Command脚本里接收TarsPHP启动脚本传入的cmd和config路径，启动tars-server中的TarsCommand
+//在Laravel的Command脚本里接收TarsPHP启动脚本传入的cmd和config路径，启动tars-server中的TarsCommand
 public function handle()
 {
     $cmd = $this->option('cmd');
     $cfg = $this->option('config_path');
 
+    $class = new TarsCommand($cmd, $cfg);
+    $class->run();
+}
+```
+
+```php
+//把TarsPHP入口脚本的参数转换成Yii2的Command参数
+$_SERVER['argv'][0] = $argv[0] = 'yii';
+$_SERVER['argv'][1] = $argv[1] = 'tars/entry';
+$_SERVER['argv'][2] = $argv[2] = $cmd;
+$_SERVER['argv'][3] = $argv[3] = $config_path;
+$_SERVER['argc'] = $argc = count($_SERVER['argv']);
+
+//执行Yii2的Command
+include_once __DIR__ . '/yii';
+```
+
+```php
+//在Yii2的Command脚本里接收TarsPHP启动脚本传入的cmd和config路径，启动tars-server中的TarsCommand
+public function actionEntry($cmd, $cfg)
+{
     $class = new TarsCommand($cmd, $cfg);
     $class->run();
 }
