@@ -77,4 +77,4 @@ if($app->state == -1){
 3. 应用运行在cli模式下。
 
 ### 欢迎品尝和贡献代码
-欢迎品尝TarsPHP、Tars-Laravel和Tars-Yii2，随手点个star，并通过issue提出宝贵建议或者通过PR参与？？？？。
+欢迎品尝TarsPHP、Tars-Laravel和Tars-Yii2，随手点个star，并通过issue或PR参与其中。
