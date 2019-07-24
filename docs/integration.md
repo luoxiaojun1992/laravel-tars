@@ -38,6 +38,35 @@ public function handle()
 
 ### 合并Tars-Config与框架的配置项
 
+//拉取TarsConfig配置项
+```php
+$communicatorConfig = self::communicatorConfig($deployConfigPath);
+$configServant = new \Tars\config\ConfigServant($communicatorConfig);
+$configServant->loadConfig($appName, $serverName, 'tars', $configtext);
+```
+
+```php
+//合并TarsConfig配置项到Laravel的Config对象
+if ($configtext) {
+    $remoteConfig = json_decode($configtext, true);
+    foreach ($remoteConfig as $configName => $configValue) {
+        app('config')->set($configName, array_merge(config($configName) ?: [], $configValue));
+    }
+}
+```
+
+```php
+//合并TarsConfig配置项到Yii2的params数组
+if ($configtext) {
+    $remoteConfig = json_decode($configtext, true);
+    foreach ($remoteConfig as $configName => $configValue) {
+        $app = Util::app();
+        $localConfig = isset($app->params[$configName]) ? $app->params[$configName] : [];
+        $app->params[$configName] = array_merge($localConfig, $configValue);
+    }
+}
+```
+
 ### 集成Tars-Log到框架的日志组件中
 
 tars-log组件自带了monolog handler，可以比较方便的集成到使用monolog作为日志引擎的框架，比如Laravel。
