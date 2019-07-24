@@ -5,7 +5,7 @@
 1. 复用phptars组件，包括tars-server、tars-log、tars-monitor、tars-registry等
 2. Swoole和框架的请求及响应的上下文转换
 
-![Laravel Tars HTTP请求过程](./laravel-tars-http-request.png)
+![Tars-Laravel HTTP请求过程](./tars-laravel-http-request.png)
 
 3. 拉取Tars Config，合并为框架的配置项
 4. 集成Tars Log到框架的日志组件中
