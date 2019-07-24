@@ -76,7 +76,7 @@ if($app->state == -1){
 
 ### 参考主流框架与Swoole结合的开源项目
 
-借鉴相对成熟的集成Swoole的开源项目，能够更快地实现上面所说的几点。
+借鉴相对成熟的集成Swoole的开源项目，能够更快地实现上面所说的几点，并且避免一些其他的问题。
 1. Laravool: [https://github.com/garveen/laravoole](https://github.com/garveen/laravoole)
 2. Yii2-Swoole: [https://github.com/tsingsun/yii2-swoole](https://github.com/tsingsun/yii2-swoole)
 3. 更多的项目可以查看Swoole官方文档: [https://wiki.swoole.com/wiki/page/p-framework.html](https://wiki.swoole.com/wiki/page/p-framework.html)
