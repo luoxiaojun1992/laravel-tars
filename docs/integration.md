@@ -36,17 +36,22 @@ public function handle()
 
 ![Tars-Laravel HTTP请求过程](./tars-laravel-http-request.png)
 
-### 拉取Tars Config，合并到框架的配置项
+### 合并Tars-Config与框架的配置项
 
-### 集成Tars Log到框架的日志组件中
+### 集成Tars-Log到框架的日志组件中
 
-tars-log自带了monolog handler，可以比较方便的集成到使用monolog作为日志引擎的框架，比如Laravel。
+tars-log组件自带了monolog handler，可以比较方便的集成到使用monolog作为日志引擎的框架，比如Laravel。
 在没有使用monolog作为日志引擎的框架中，可以编写相应的handler来扩展日志输出的方式，比如Yii2 Log Target。
 
-### 主动释放框架和PHP的某些全局资源，防止内存泄漏
+### 主动释放框架和PHP的全局资源，防止内存泄漏
 
 ```php
-//在Laravel框架中请求结束需要清除session数据
+//释放Stat Cache
+clearstatcache();
+```
+
+```php
+//在Laravel框架中请求结束需要清除session、cookie等其他数据
 if ($illuminateRequest->hasSession()) {
     $session = $illuminateRequest->getSession();
     if (is_callable([$session, 'clear'])) {
@@ -55,16 +60,21 @@ if ($illuminateRequest->hasSession()) {
         $session->flush();
     }
 }
+...
 ```
 
 ```php
-//在Yii2框架中请求结束需要清除缓存的日志数据
+//在Yii2框架中请求结束需要清除session和缓存的日志数据
+if ($app->has('session', true)) {
+    $app->getSession()->close();
+}
+
 if($app->state == -1){
     $app->getLog()->logger->flush(true);
 }
 ```
 
-### 参考框架集成Swoole的解决方案
+### 参考主流框架与Swoole结合的开源项目
 
 借鉴相对成熟的集成Swoole的开源项目，能够更快地实现上面所说的几点。
 1. Laravool: [https://github.com/garveen/laravoole](https://github.com/garveen/laravoole)
