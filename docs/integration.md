@@ -32,7 +32,7 @@ public function handle()
 }
 ```
 
-### Swoole和框架的请求及响应的上下文转换
+### 请求和响应的上下文转换
 
 ![Tars-Laravel HTTP请求过程](./tars-laravel-http-request.png)
 
@@ -46,7 +46,7 @@ tars-log自带了monolog handler，可以比较方便的集成到使用monolog�
 ### 主动释放框架和PHP的某些全局资源，防止内存泄漏
 
 ```php
-//比如在Laravel框架中请求结束需要清除session数据
+//在Laravel框架中请求结束需要清除session数据
 if ($illuminateRequest->hasSession()) {
     $session = $illuminateRequest->getSession();
     if (is_callable([$session, 'clear'])) {
@@ -58,7 +58,7 @@ if ($illuminateRequest->hasSession()) {
 ```
 
 ```php
-//比如在Yii2框架中请求结束需要清除缓存的日志数据
+//在Yii2框架中请求结束需要清除缓存的日志数据
 if($app->state == -1){
     $app->getLog()->logger->flush(true);
 }
@@ -67,14 +67,19 @@ if($app->state == -1){
 ### 参考框架集成Swoole的解决方案
 
 借鉴相对成熟的集成Swoole的开源项目，能够更快地实现上面所说的几点。
-1. Laravool：[https://github.com/garveen/laravoole](https://github.com/garveen/laravoole)
-2. Yii2-Swoole：[https://github.com/tsingsun/yii2-swoole](https://github.com/tsingsun/yii2-swoole)
-3. 更多的项目可以查看Swoole官方文档：[https://wiki.swoole.com/wiki/page/p-framework.html](https://wiki.swoole.com/wiki/page/p-framework.html)
+1. Laravool: [https://github.com/garveen/laravoole](https://github.com/garveen/laravoole)
+2. Yii2-Swoole: [https://github.com/tsingsun/yii2-swoole](https://github.com/tsingsun/yii2-swoole)
+3. 更多的项目可以查看Swoole官方文档: [https://wiki.swoole.com/wiki/page/p-framework.html](https://wiki.swoole.com/wiki/page/p-framework.html)
 
 ## 需要特别注意的几点
 1. 在开发中需要预防内存溢出。
 2. 非协程框架不能使用协程。
-3. 应用运行在cli模式下。
+3. 应用运行在PHP的cli模式下。
+
+## 相关项目
+1. TarsPHP: 
+2. Tars-Laravel: 
+3. Tars-Yii2: 
 
 ## 欢迎品尝和贡献代码
-欢迎品尝TarsPHP、Tars-Laravel和Tars-Yii2，随手点个star，并通过issue或PR参与其中。
+欢迎品尝TarsPHP、Tars-Laravel和Tars-Yii2，随手点个star，并通过提issue或PR的方式参与其中。
