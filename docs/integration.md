@@ -38,8 +38,8 @@ public function handle()
 
 ### 合并Tars-Config与框架的配置项
 
-//拉取TarsConfig配置项
 ```php
+//拉取TarsConfig配置项
 $communicatorConfig = self::communicatorConfig($deployConfigPath);
 $configServant = new \Tars\config\ConfigServant($communicatorConfig);
 $configServant->loadConfig($appName, $serverName, 'tars', $configtext);
