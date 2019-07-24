@@ -43,6 +43,22 @@ public function handle()
 tars-log组件自带了monolog handler，可以比较方便的集成到使用monolog作为日志引擎的框架，比如Laravel。
 在没有使用monolog作为日志引擎的框架中，可以编写相应的handler来扩展日志输出的方式，比如Yii2 Log Target。
 
+```php
+//Laravel扩展monolog
+$logger = app()->make('log');
+$logger->driver()->pushHandler($tarsLogHandler);
+```
+
+```php
+//Yii2新增Log Target
+$app->getLog()->getLogger()->dispatcher->targets['tars'] = \Yii::createObject([
+    'class' => LogTarget::class,
+    'logConf' => $config,
+    'levels' => $level,
+    'exportInterval' => $logInterval,
+]);
+```
+
 ### 主动释放框架和PHP的全局资源，防止内存泄漏
 
 ```php
