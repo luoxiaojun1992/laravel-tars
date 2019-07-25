@@ -284,6 +284,9 @@ protected function sendContent()
 
 ### 合并Tars-Config与框架的配置项
 
+通过TarsLog组件调用接口获取到远程配置，合并到框架自带的配置项中。在Laravel中，可以直接把配置写入到Config对象
+中。在Yii2中，不支持直接修改Config，可以把远程配置合并到全局的params参数中。
+
 ```php
 //拉取TarsConfig配置项
 $communicatorConfig = self::communicatorConfig($deployConfigPath);
