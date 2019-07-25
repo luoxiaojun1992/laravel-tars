@@ -322,7 +322,11 @@ tars-log组件自带了monolog handler，可以比较方便的集成到使用mon
 
 Laravel: 
 ```php
-//Laravel扩展monolog
+//实例化TarsLog自带的Monolog Handler
+$communicatorConfig = Config::communicatorConfig($deployConfigPath);
+$tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
+
+//Laravel Monolog实例注册Handler
 $logger = app()->make('log');
 $logger->driver()->pushHandler($tarsLogHandler);
 ```
