@@ -1,4 +1,4 @@
-# TarsPHP与主流框架的集成
+# TarsPHP与主流框架的结合
 
 随着TarsPHP的发布，PHP语言也拥有了包含开发、运维、以及测试的一整套微服务解决方案。但是在实际的应用中，
 还是需要考虑与现有技术栈的融合。如果是新开发的微服务，必须集成路由、ORM、日志等辅助类库。而对于已经存在的服务，
@@ -7,9 +7,9 @@
 
 ## TarsPHP集成主流框架的思路
 
-### 复用TarsPHP组件，包括tars-server、tars-log、tars-monitor、tars-registry等
+### 基于TarsPHP组件，包括tars-server、tars-log、tars-monitor、tars-registry等
 
-复用的好处在于不需要重复实现tars的基础能力，减少开发量，避免重复踩坑，只需要解决与框架的适配问题。
+复用TarsPHP的组件，不需要重复实现tars的基础能力，减少开发量，避免重复踩坑，重点关注框架的适配问题。
 
 ```php
 //把TarsPHP入口脚本的参数转换成Laravel的Command参数
