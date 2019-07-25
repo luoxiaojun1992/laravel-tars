@@ -417,7 +417,7 @@ if($app->state == -1){
 3. 更多的项目可以查看Swoole官方文档: [https://wiki.swoole.com/wiki/page/p-framework.html](https://wiki.swoole.com/wiki/page/p-framework.html)
 
 ## 需要特别注意的几点
-1. 在开发中需要预防内存溢出。
+1. 在开发中需要预防内存泄漏。
 2. 非协程框架不能使用协程。
 3. 应用运行在PHP的cli模式下。
 
