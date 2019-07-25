@@ -11,6 +11,7 @@
 
 复用TarsPHP的组件，不需要重复实现tars的基础能力，减少开发量，避免重复踩坑，重点关注框架的适配问题。
 
+Laravel: 
 ```php
 //把TarsPHP入口脚本的参数转换成Laravel的Command参数
 $_SERVER['argv'][0] = $argv[0] = __DIR__ .'/artisan';
@@ -35,6 +36,7 @@ public function handle()
 }
 ```
 
+Yii2: 
 ```php
 //把TarsPHP入口脚本的参数转换成Yii2的Command参数
 $_SERVER['argv'][0] = $argv[0] = 'yii';
@@ -60,6 +62,169 @@ public function actionEntry($cmd, $cfg)
 
 ![Tars-Laravel HTTP请求过程](./tars-laravel-http-request.png)
 
+请求上下文的转换: 
+
+Laravel: 
+```php
+/**
+ * 根据请求上下文参数生成Laravel的Request对象
+ *
+ * @param array $get
+ * @param array $post
+ * @param array $cookie
+ * @param array $files
+ * @param array $server
+ * @param string $content
+ * @return \Illuminate\Http\Request
+ * @throws \LogicException
+ */
+protected function createIlluminateRequest($get, $post, $cookie, $files, $server, $content = null)
+{
+    IlluminateRequest::enableHttpMethodParameterOverride();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Copy from \Symfony\Component\HttpFoundation\Request::createFromGlobals().
+    |--------------------------------------------------------------------------
+    |
+    | With the php's bug #66606, the php's built-in web server
+    | stores the Content-Type and Content-Length header values in
+    | HTTP_CONTENT_TYPE and HTTP_CONTENT_LENGTH fields.
+    |
+    */
+
+    if ('cli-server' === PHP_SAPI) {
+        if (array_key_exists('HTTP_CONTENT_LENGTH', $server)) {
+            $server['CONTENT_LENGTH'] = $server['HTTP_CONTENT_LENGTH'];
+        }
+        if (array_key_exists('HTTP_CONTENT_TYPE', $server)) {
+            $server['CONTENT_TYPE'] = $server['HTTP_CONTENT_TYPE'];
+        }
+    }
+
+    $request = new SymfonyRequest($get, $post, [], $cookie, $files, $server, $content);
+
+    if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
+        && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
+    ) {
+        parse_str($request->getContent(), $data);
+        $request->request = new ParameterBag($data);
+    }
+
+    $this->illuminateRequest = IlluminateRequest::createFromBase($request);
+}
+```
+
+Yii2: 
+```php
+/**
+ * 继承Yii2的Request，替换原生的方法，通过tarsRequest获取请求上下文
+ *
+ * @package Lxj\Yii2\Tars
+ */
+class Yii2Request extends \yii\web\Request
+{
+    /**
+     * @var \Tars\core\Request
+     */
+    public $tarsRequest;
+
+    /**
+     * @param \Tars\core\Request $request
+     * @return $this
+     */
+    public function setTarsRequest(\Tars\core\Request $request)
+    {
+        $this->tarsRequest = $request;
+        $this->clear();
+        return $this;
+    }
+
+    /**
+     * @return \Tars\core\Request
+     */
+    public function getTarsRequest()
+    {
+        return $this->tarsRequest;
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function getQueryParams()
+    {
+        if ($this->_queryParams === null) {
+            $tarsRequest = $this->getTarsRequest();
+            $this->_queryParams = isset($tarsRequest->data['get']) ? $tarsRequest->data['get'] : [];
+        }
+        return $this->_queryParams;
+    }
+    ...
+}
+```
+
+响应上下文的转换: 
+
+Laravel: 
+```php
+//通过TarsResponse把Laravel的Response对象中的header和body返回给客户端
+
+/**
+ * Sends HTTP headers.
+ *
+ * @throws \InvalidArgumentException
+ */
+protected function sendHeaders()
+{
+    $illuminateResponse = $this->getIlluminateResponse();
+
+    /* RFC2616 - 14.18 says all Responses need to have a Date */
+    if (! $illuminateResponse->headers->has('Date')) {
+        $illuminateResponse->setDate(\DateTime::createFromFormat('U', time()));
+    }
+
+    // headers
+    foreach ($illuminateResponse->headers->allPreserveCaseWithoutCookies() as $name => $values) {
+        foreach ($values as $value) {
+            $this->tarsResponse->header($name, $value);
+        }
+    }
+
+    // status
+    $this->tarsResponse->status($illuminateResponse->getStatusCode());
+
+    // cookies
+    foreach ($illuminateResponse->headers->getCookies() as $cookie) {
+        $method = $cookie->isRaw() ? 'rawcookie' : 'cookie';
+
+        $this->tarsResponse->resource->$method(
+            $cookie->getName(), $cookie->getValue(),
+            $cookie->getExpiresTime(), $cookie->getPath(),
+            $cookie->getDomain(), $cookie->isSecure(),
+            $cookie->isHttpOnly()
+        );
+    }
+}
+
+/**
+ * Sends HTTP content.
+ */
+protected function sendContent()
+{
+    $illuminateResponse = $this->getIlluminateResponse();
+
+    if ($illuminateResponse instanceof StreamedResponse) {
+        $illuminateResponse->sendContent();
+    } elseif ($illuminateResponse instanceof BinaryFileResponse) {
+        $this->tarsResponse->resource->sendfile($illuminateResponse->getFile()->getPathname());
+    } else {
+        $this->tarsResponse->resource->end($illuminateResponse->getContent());
+    }
+}
+```
+
+Yii2: 
+
 ### 合并Tars-Config与框架的配置项
 
 ```php
@@ -69,6 +234,7 @@ $configServant = new \Tars\config\ConfigServant($communicatorConfig);
 $configServant->loadConfig($appName, $serverName, 'tars', $configtext);
 ```
 
+Laravel: 
 ```php
 //合并TarsConfig配置项到Laravel的Config对象
 if ($configtext) {
@@ -79,6 +245,7 @@ if ($configtext) {
 }
 ```
 
+Yii2: 
 ```php
 //合并TarsConfig配置项到Yii2的params数组
 if ($configtext) {
@@ -96,12 +263,14 @@ if ($configtext) {
 tars-log组件自带了monolog handler，可以比较方便的集成到使用monolog作为日志引擎的框架，比如Laravel。
 在没有使用monolog作为日志引擎的框架中，可以编写相应的handler来扩展日志输出的方式，比如Yii2 Log Target。
 
+Laravel: 
 ```php
 //Laravel扩展monolog
 $logger = app()->make('log');
 $logger->driver()->pushHandler($tarsLogHandler);
 ```
 
+Yii2: 
 ```php
 //Yii2新增Log Target
 $app->getLog()->getLogger()->dispatcher->targets['tars'] = \Yii::createObject([
@@ -119,6 +288,7 @@ $app->getLog()->getLogger()->dispatcher->targets['tars'] = \Yii::createObject([
 clearstatcache();
 ```
 
+Laravel: 
 ```php
 //在Laravel框架中请求结束需要清除session、cookie等其他数据
 if ($illuminateRequest->hasSession()) {
@@ -132,6 +302,7 @@ if ($illuminateRequest->hasSession()) {
 ...
 ```
 
+Yii2: 
 ```php
 //在Yii2框架中请求结束需要清除session和缓存的日志数据
 if ($app->has('session', true)) {
