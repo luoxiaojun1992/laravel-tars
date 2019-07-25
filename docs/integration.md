@@ -9,7 +9,7 @@
 
 TarsPHP的服务容器是基于Swoole的能力实现的，并且利用Swoole的Task进程实现主调和监控上报等功能。因此，
 TarsPHP与框架的结合的重点就是Swoole和框架的结合，把Swoole的上下文转换成框架的上下文，结合Swoole的http服务
-能力和框架的路由、控制器等功能。除此之外，还需要兼容TarsPHP的入口脚本、配置下发、日志服务等功能。
+能力和框架的路由、控制器等功能。除此之外，还需要兼容TarsPHP的入口脚本，接入TarsPHP的配置下发、日志服务等功能。
 
 ### 基于TarsPHP组件，包括tars-server、tars-log、tars-monitor、tars-registry等
 
