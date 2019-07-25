@@ -171,12 +171,15 @@ class Yii2Request extends \yii\web\Request
 
 Laravel: 
 ```php
-
+/** @var Kernel $kernel */
+$kernel = $application->make(Kernel::class);
+$illuminateResponse = $kernel->handle($illuminateRequest);
 ```
 
 Yii2: 
 ```php
-
+$application->set('request', $yii2Request); //注入request对象到app容器
+$yii2Response = $application->handleRequest($yii2Request);
 ```
 
 响应上下文的转换: 
