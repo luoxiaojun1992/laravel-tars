@@ -62,6 +62,10 @@ public function actionEntry($cmd, $cfg)
 
 ![Tars-Laravel HTTP请求过程](./tars-laravel-http-request.png)
 
+在TarsController里，把TarsRequest对象转换成框架的Request对象，然后通过框架的app内核分发
+请求，通过框架的路由最后到达框架的控制器层。控制器返回框架的Response对象，在TarsController中，通过框架
+的Response对象获取HTTP响应头和body，再通过TarsResponse对象将响应头和body发送给客户端。
+
 请求上下文的转换: 
 
 Laravel: 
@@ -163,6 +167,18 @@ class Yii2Request extends \yii\web\Request
 }
 ```
 
+框架的请求分发和路由: 
+
+Laravel: 
+```php
+
+```
+
+Yii2: 
+```php
+
+```
+
 响应上下文的转换: 
 
 Laravel: 
@@ -224,6 +240,44 @@ protected function sendContent()
 ```
 
 Yii2: 
+```php
+//通过TarsResponse把Yii2的Response对象中的header和body返回给客户端
+
+/**
+ * Sends HTTP headers.
+ *
+ * @throws \InvalidArgumentException
+ */
+protected function sendHeaders()
+{
+    $yii2Response = $this->getYii2Response();
+
+    /* RFC2616 - 14.18 says all Responses need to have a Date */
+    if (! $yii2Response->headers->has('Date')) {
+        $yii2Response->headers->set('Date', \DateTime::createFromFormat('U', time()));
+    }
+
+    // headers
+    foreach ($yii2Response->headers->getIterator() as $name => $values) {
+        foreach ($values as $value) {
+            $this->tarsResponse->header($name, $value);
+        }
+    }
+
+    // status
+    $this->tarsResponse->status($yii2Response->getStatusCode());
+}
+
+/**
+ * Sends HTTP content.
+ */
+protected function sendContent()
+{
+    $yii2Response = $this->getYii2Response();
+
+    $this->tarsResponse->resource->end($yii2Response->content);
+}
+```
 
 ### 合并Tars-Config与框架的配置项
 
