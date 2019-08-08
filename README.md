@@ -132,7 +132,7 @@ pipeline {
             label 'phpenv'
         }
     }
-    parameters { 
+    parameters {
         string(defaultValue: 'upload_from_jenkins', name: 'TAG_DESC', description: '发布版本描述' )
         string(defaultValue: 'master', name: 'BRANCH_NAME', description: 'git分支，如：develop,master  默认: master')
     }
@@ -227,7 +227,7 @@ pipeline {
             label 'phpenv'
         }
     }
-    parameters { 
+    parameters {
         string(defaultValue: 'upload_from_jenkins', name: 'TAG_DESC', description: '发布版本描述' )
         string(defaultValue: 'master', name: 'BRANCH_NAME', description: 'git分支，如：develop,master  默认: master')
     }
