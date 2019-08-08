@@ -312,5 +312,8 @@ pipeline {
 }
 ```
 
+Jenkins部署过程
+![Jenkins Pipeline](./docs/jenkins-pipeline.png)
+
 ### PHP框架集成Tars
 [TARS如何集成到PHP框架](./docs/integration.md)
