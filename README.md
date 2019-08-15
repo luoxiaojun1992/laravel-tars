@@ -18,6 +18,9 @@ Laravel集成微服务治理框架Tars
 * 支持http和tars协议
 * 支持zipkin分布式追踪(已移除，可以使用[laravel-zipkin扩展包](https://github.com/luoxiaojun1992/laravel-zipkin))
 
+### 限制
+* 受限于框架本身的设计，不支持协程
+
 ### 环境依赖
 1. Laravel/Lumen5.x
 2. Tars-PHP
