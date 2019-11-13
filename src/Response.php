@@ -34,7 +34,7 @@ class Response
      *
      * @param $illuminateResponse
      * @param TarsResponse $tarsResponse
-     * @return \HuangYi\Http\Server\Response
+     * @return static
      */
     public static function make($illuminateResponse, TarsResponse $tarsResponse)
     {
@@ -45,7 +45,7 @@ class Response
      * Response constructor.
      *
      * @param mixed $illuminateResponse
-     * @param TarsResponse
+     * @param TarsResponse $tarsResponse
      */
     public function __construct($illuminateResponse, TarsResponse $tarsResponse)
     {
