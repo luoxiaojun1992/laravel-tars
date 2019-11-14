@@ -4,9 +4,11 @@ namespace Lxj\Laravel\Tars\Commands;
 
 use Illuminate\Console\Command;
 use Lxj\Laravel\Tars\Registries\Registry;
+use Lxj\Laravel\Tars\Route\TarsRouteFactory;
 use Lxj\Laravel\Tars\Util;
 use Symfony\Component\Console\Input\InputOption;
 use Tars\cmd\Command as TarsCommand;
+use Tars\route\RouteFactory;
 
 class Tars extends Command
 {
@@ -26,17 +28,7 @@ class Tars extends Command
         $cmd = $this->option('cmd');
         $cfg = $this->option('config_path');
 
-        $deployCfg = file_get_contents($cfg);
-        $protocolName = <<<EOF
-			protocolName=http
-EOF;
-        $protocolNameWithRouteName = <<<EOF
-			routeName=Lxj\Laravel\Tars\TarsRoute
-			protocolName=http
-EOF;
-
-        $cfg = ($cfg . '.with.route.conf');
-        file_put_contents($cfg, str_replace($protocolName, $protocolNameWithRouteName, $deployCfg));
+        class_alias(TarsRouteFactory::class, RouteFactory::class);
 
         list($hostname, $port, $appName, $serverName) = Util::parseTarsConfig($cfg);
 

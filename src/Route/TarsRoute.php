@@ -1,11 +1,12 @@
 <?php
 
-namespace Lxj\Laravel\Tars;
+namespace Lxj\Laravel\Tars\Route;
 
 use Illuminate\Auth\AuthServiceProvider;
 use Illuminate\Contracts\Cookie\QueueingFactory;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Facade;
+use Lxj\Laravel\Tars\Boot;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tars\core\Request;
 use Tars\core\Response;
