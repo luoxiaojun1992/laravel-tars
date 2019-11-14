@@ -7,6 +7,7 @@ use Illuminate\Contracts\Cookie\QueueingFactory;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Facade;
 use Lxj\Laravel\Tars\Boot;
+use Lxj\Laravel\Tars\Util;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tars\core\Request;
 use Tars\core\Response;
