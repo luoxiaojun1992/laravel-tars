@@ -46,7 +46,9 @@ class Boot
         $tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
 
         $logger = app()->make('log');
-        if (method_exists($logger, 'driver')) {
+        if ($logger instanceof Logger) {
+            $logger->pushHandler($tarsLogHandler);
+        } elseif (method_exists($logger, 'driver')) {
             $logger->driver()->pushHandler($tarsLogHandler);
         } else {
             $reflectionObj = new \ReflectionObject($logger);
