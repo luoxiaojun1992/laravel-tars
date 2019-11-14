@@ -26,6 +26,18 @@ class Tars extends Command
         $cmd = $this->option('cmd');
         $cfg = $this->option('config_path');
 
+        $deployCfg = file_get_contents($cfg);
+        $protocolName = <<<EOF
+			protocolName=http
+EOF;
+        $protocolNameWithRouteName = <<<EOF
+			routeName=Lxj\Laravel\Tars\TarsRoute
+			protocolName=http
+EOF;
+
+        $cfg = ($cfg . '.with.route.conf');
+        file_put_contents($cfg, str_replace($protocolName, $protocolNameWithRouteName, $deployCfg));
+
         list($hostname, $port, $appName, $serverName) = Util::parseTarsConfig($cfg);
 
         config(['tars.deploy_cfg' => $cfg]);
