@@ -19,7 +19,7 @@
     "phptars/tars2php": "0.1.3",
     "phptars/tars-log": "0.1.5",
     "laravelista/lumen-vendor-publish": "2.1.0",
-    "guzzlehttp/guzzle": "6.3.3"
+    "guzzlehttp/guzzle": "^6"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
