@@ -91,13 +91,13 @@ class Request
 
         $request = new SymfonyRequest($get, $post, [], $cookie, $files, $server, $content);
 
-        if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
+        if (0 === stripos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
             && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
         ) {
             parse_str($request->getContent(), $data);
             $data = array_merge($post, $data);
             $request->request = new ParameterBag($data);
-        } elseif (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/json')) {
+        } elseif (0 === stripos($request->headers->get('CONTENT_TYPE'), 'application/json')) {
             $data = array_merge($post, json_decode($request->getContent(), true));
             $request->request = new ParameterBag($data);
         }
