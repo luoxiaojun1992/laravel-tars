@@ -136,7 +136,7 @@ class Request
         $header = isset($request->data['header']) ? $request->data['header'] : [];
         $server = isset($request->data['server']) ? $request->data['server'] : [];
         $server = self::transformServerParameters($server, $header);
-        $content = $request->data['post'] ? 
+        $content = isset($request->data['post']) ?
             (is_array($request->data['post']) ? http_build_query($request->data['post']) : $request->data['post']) : 
             null;
 
