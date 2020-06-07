@@ -95,6 +95,10 @@ class Request
             && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
         ) {
             parse_str($request->getContent(), $data);
+            $data = array_merge($post, $data);
+            $request->request = new ParameterBag($data);
+        } elseif (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/json')) {
+            $data = array_merge($post, json_decode($request->getContent(), true));
             $request->request = new ParameterBag($data);
         }
 
@@ -159,7 +163,7 @@ class Request
             $key = str_replace('-', '_', $key);
             $key = strtoupper($key);
 
-            if (! in_array($key, ['REMOTE_ADDR', 'SERVER_PORT', 'HTTPS'])) {
+            if (! in_array($key, ['CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE', 'REMOTE_ADDR', 'SERVER_PORT', 'HTTPS'])) {
                 $key = 'HTTP_' . $key;
             }
 
