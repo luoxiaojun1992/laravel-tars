@@ -22,15 +22,15 @@ class TarsRoute implements Route
         Boot::handle();
 
         try {
-            clearstatcache();
+            $this->clean();
 
             list($illuminateRequest, $illuminateResponse) = $this->handle($request);
 
             $this->terminate($illuminateRequest, $illuminateResponse);
 
-            $this->clean($illuminateRequest);
-
             $this->response($response, $illuminateResponse);
+
+            $this->clean($illuminateRequest);
         } catch (\Exception $e) {
             $response->status(500);
             $response->send($e->getMessage() . '|' . $e->getTraceAsString());
@@ -98,14 +98,18 @@ class TarsRoute implements Route
         event('laravel.tars.requested', [$illuminateRequest, $illuminateResponse]);
     }
 
-    protected function clean($illuminateRequest)
+    protected function clean($illuminateRequest = null)
     {
-        if ($illuminateRequest->hasSession()) {
-            $session = $illuminateRequest->getSession();
-            if (is_callable([$session, 'clear'])) {
-                $session->clear(); // @codeCoverageIgnore
-            } else {
-                $session->flush();
+        clearstatcache();
+
+        if ($illuminateRequest) {
+            if ($illuminateRequest->hasSession()) {
+                $session = $illuminateRequest->getSession();
+                if (is_callable([$session, 'clear'])) {
+                    $session->clear(); // @codeCoverageIgnore
+                } else {
+                    $session->flush();
+                }
             }
         }
 
@@ -133,9 +137,11 @@ class TarsRoute implements Route
             }
         } else {
             // Clean laravel cookie queue
-            $cookies = $application->make(QueueingFactory::class);
-            foreach ($cookies->getQueuedCookies() as $name => $cookie) {
-                $cookies->unqueue($name);
+            if ($application->has(QueueingFactory::class)) {
+                $cookies = $application->make(QueueingFactory::class);
+                foreach ($cookies->getQueuedCookies() as $name => $cookie) {
+                    $cookies->unqueue($name);
+                }
             }
 
             $loadedProviders = $application->getLoadedProviders();
