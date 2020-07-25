@@ -91,10 +91,14 @@ class Request
 
         $request = new SymfonyRequest($get, $post, [], $cookie, $files, $server, $content);
 
-        if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
+        if (0 === stripos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
             && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
         ) {
             parse_str($request->getContent(), $data);
+            $data = array_merge($post, $data);
+            $request->request = new ParameterBag($data);
+        } elseif (0 === stripos($request->headers->get('CONTENT_TYPE'), 'application/json')) {
+            $data = array_merge($post, json_decode($request->getContent(), true));
             $request->request = new ParameterBag($data);
         }
 
@@ -132,7 +136,7 @@ class Request
         $header = isset($request->data['header']) ? $request->data['header'] : [];
         $server = isset($request->data['server']) ? $request->data['server'] : [];
         $server = self::transformServerParameters($server, $header);
-        $content = $request->data['post'] ? 
+        $content = isset($request->data['post']) ?
             (is_array($request->data['post']) ? http_build_query($request->data['post']) : $request->data['post']) : 
             null;
 
@@ -159,7 +163,7 @@ class Request
             $key = str_replace('-', '_', $key);
             $key = strtoupper($key);
 
-            if (! in_array($key, ['REMOTE_ADDR', 'SERVER_PORT', 'HTTPS'])) {
+            if (! in_array($key, ['CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE', 'REMOTE_ADDR', 'SERVER_PORT', 'HTTPS'])) {
                 $key = 'HTTP_' . $key;
             }
 
