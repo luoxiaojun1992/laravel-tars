@@ -23,6 +23,25 @@ class Tars extends Command
         $this->addOption('config_path', 'cfg', InputOption::VALUE_REQUIRED);
     }
 
+    public function setEnv($cfg)
+    {
+        $envPath = base_path() . DIRECTORY_SEPARATOR . '.env';
+        $lines = collect(file($envPath, FILE_IGNORE_NEW_LINES));
+        $lines->transform(function ($item) use ($cfg) {
+
+            foreach ($cfg as $k => $v) {
+                if (stripos($item, $k) !== false) {
+                    return "{$k}={$v}";
+                }
+            }
+            return $item;
+        });
+
+        $content = implode( PHP_EOL, $lines->toArray());
+
+        file_put_contents($envPath, $content);
+    }
+
     public function handle()
     {
         $cmd = $this->option('cmd');
@@ -34,6 +53,10 @@ class Tars extends Command
 
         config(['tars.deploy_cfg' => $cfg]);
 
+        $this->setEnv([
+            'TARS_DEPLOY_CONFIG' => $cfg
+        ]);
+        
         Registry::register($hostname, $port);
 
         $class = new TarsCommand($cmd, $cfg);
