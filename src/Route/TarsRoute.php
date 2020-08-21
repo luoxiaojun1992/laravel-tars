@@ -6,6 +6,7 @@ use Illuminate\Auth\AuthServiceProvider;
 use Illuminate\Contracts\Cookie\QueueingFactory;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Facade;
+use Lxj\Laravel\Tars\App;
 use Lxj\Laravel\Tars\Boot;
 use Lxj\Laravel\Tars\Util;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -162,14 +163,6 @@ class TarsRoute implements Route
 
     protected function app()
     {
-        if (self::$app) {
-            return self::$app;
-        }
-        return self::$app = $this->createApp();
-    }
-
-    protected function createApp()
-    {
-        return include app()->basePath('bootstrap/app.php');
+        return App::getApp();
     }
 }
