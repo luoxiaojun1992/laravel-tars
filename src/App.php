@@ -26,6 +26,7 @@ class App
         static::setTarsDeployCfg(config('tars.deploy_cfg'));
         static::$app = static::createApp();
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
+        Boot::handle(true);
         return static::$app;
     }
 
