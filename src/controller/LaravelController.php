@@ -13,6 +13,11 @@ use Lxj\Laravel\Tars\Response;
 use Lxj\Laravel\Tars\Util;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
+/**
+ * Class LaravelController
+ * @package Lxj\Laravel\Tars\controller
+ * @deprecated
+ */
 class LaravelController extends Controller
 {
     protected static $app;

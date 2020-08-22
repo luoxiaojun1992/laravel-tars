@@ -50,6 +50,7 @@ class TarsRoute implements Route
 
         event('laravel.tars.requesting', [$illuminateRequest]);
 
+        //Laravel App 创建完必须
         $application = $this->app();
 
         if (Util::isLumen()) {
