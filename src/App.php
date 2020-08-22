@@ -28,7 +28,9 @@ class App
         static::setTarsDeployCfg(config('tars.deploy_cfg'));
         static::$app = static::createApp();
         $application = static::$app;
-        $application->make(Kernel::class);
+        /** @var Kernel $kernel */
+        $kernel = $application->make(Kernel::class);
+        $kernel->bootstrap();
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
         Boot::handle(true);
         return static::$app;
