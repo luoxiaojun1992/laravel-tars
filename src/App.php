@@ -2,6 +2,8 @@
 
 namespace Lxj\Laravel\Tars;
 
+use Illuminate\Contracts\Http\Kernel;
+
 class App
 {
     public static $tarsDeployCfg;
@@ -25,6 +27,8 @@ class App
         }
         static::setTarsDeployCfg(config('tars.deploy_cfg'));
         static::$app = static::createApp();
+        $application = static::$app;
+        $application->make(Kernel::class);
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
         Boot::handle(true);
         return static::$app;
