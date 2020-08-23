@@ -23,9 +23,11 @@ class TarsRoute implements Route
         Boot::handle();
 
         try {
-            $this->clean();
+            $illuminateRequest = \Lxj\Laravel\Tars\Request::make($request)->toIlluminate();
 
-            list($illuminateRequest, $illuminateResponse) = $this->handle($request);
+            $this->clean($illuminateRequest);
+
+            list($illuminateRequest, $illuminateResponse) = $this->handle($illuminateRequest);
 
             $this->terminate($illuminateRequest, $illuminateResponse);
 
@@ -38,7 +40,7 @@ class TarsRoute implements Route
         }
     }
 
-    protected function handle($tarsRequest)
+    protected function handle($illuminateRequest)
     {
         if (ob_get_level() > 0) {
             ob_end_clean();
@@ -46,12 +48,10 @@ class TarsRoute implements Route
         ob_start();
         $isObEnd = false;
 
-        $illuminateRequest = \Lxj\Laravel\Tars\Request::make($tarsRequest)->toIlluminate();
-
         event('laravel.tars.requesting', [$illuminateRequest]);
 
         //Laravel App 创建完必须
-        $application = $this->app();
+        $application = $this->app($illuminateRequest);
 
         if (Util::isLumen()) {
             $illuminateResponse = $application->dispatch($illuminateRequest);
@@ -79,7 +79,7 @@ class TarsRoute implements Route
 
     protected function terminate($illuminateRequest, $illuminateResponse)
     {
-        $application = $this->app();
+        $application = $this->app($illuminateRequest);
 
         if (Util::isLumen()) {
             // Reflections
@@ -103,22 +103,20 @@ class TarsRoute implements Route
         event('laravel.tars.requested', [$illuminateRequest, $illuminateResponse]);
     }
 
-    protected function clean($illuminateRequest = null)
+    protected function clean($illuminateRequest)
     {
         clearstatcache();
 
-        if ($illuminateRequest) {
-            if ($illuminateRequest->hasSession()) {
-                $session = $illuminateRequest->getSession();
-                if (is_callable([$session, 'clear'])) {
-                    $session->clear(); // @codeCoverageIgnore
-                } else {
-                    $session->flush();
-                }
+        if ($illuminateRequest->hasSession()) {
+            $session = $illuminateRequest->getSession();
+            if (is_callable([$session, 'clear'])) {
+                $session->clear(); // @codeCoverageIgnore
+            } else {
+                $session->flush();
             }
         }
 
-        $application = $this->app();
+        $application = $this->app($illuminateRequest);
 
         if (Util::isLumen()) {
             // Clean laravel cookie queue
@@ -162,8 +160,8 @@ class TarsRoute implements Route
         \Lxj\Laravel\Tars\Response::make($illuminateResponse, $tarsResponse)->send();
     }
 
-    protected function app()
+    protected function app($request)
     {
-        return App::getApp();
+        return App::getApp($request);
     }
 }
