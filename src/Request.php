@@ -27,7 +27,7 @@ class Request
      * Make a request.
      *
      * @param TarsRequest $tarsRequest
-     * @return \HuangYi\Http\Server\Request
+     * @return static
      */
     public static function make(TarsRequest $tarsRequest)
     {
