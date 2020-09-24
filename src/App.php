@@ -27,7 +27,11 @@ class App
     {
         static::setTarsDeployCfg(config('tars.deploy_cfg'));
 
+        $oldApp = app();
+
         $application = static::createApp();
+
+        $oldApp->forgetInstance('app');
 
         /** @var Kernel $kernel */
         $kernel = $application->make(Kernel::class);
