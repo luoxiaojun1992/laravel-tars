@@ -31,7 +31,7 @@ class App
 
         $application = static::createApp();
 
-        $oldApp->forgetInstance('app');
+        $oldApp->flush();
 
         /** @var Kernel $kernel */
         $kernel = $application->make(Kernel::class);
