@@ -33,13 +33,15 @@ class App
 
         $oldApp->flush();
 
-        /** @var Kernel $kernel */
-        $kernel = $application->make(Kernel::class);
+        if (!Util::isLumen()) {
+            /** @var Kernel $kernel */
+            $kernel = $application->make(Kernel::class);
 
-        $request->enableHttpMethodParameterOverride();
-        $application->instance('request', $request);
-        Facade::clearResolvedInstance('request');
-        $kernel->bootstrap();
+            $request->enableHttpMethodParameterOverride();
+            $application->instance('request', $request);
+            Facade::clearResolvedInstance('request');
+            $kernel->bootstrap();
+        }
 
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
         Boot::handle(true);
