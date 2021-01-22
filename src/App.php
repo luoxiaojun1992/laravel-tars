@@ -41,6 +41,9 @@ class App
             $application->instance('request', $request);
             Facade::clearResolvedInstance('request');
             $kernel->bootstrap();
+        } else {
+            Facade::clearResolvedInstances();
+            Facade::setFacadeApplication($application);
         }
 
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
