@@ -6,6 +6,7 @@ use Illuminate\Auth\AuthServiceProvider;
 use Illuminate\Contracts\Cookie\QueueingFactory;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Facade;
+use Laravel\Lumen\Application;
 use Lxj\Laravel\Tars\App;
 use Lxj\Laravel\Tars\Boot;
 use Lxj\Laravel\Tars\Util;
@@ -16,16 +17,18 @@ use Tars\route\Route;
 
 class TarsRoute implements Route
 {
-    protected static $app;
+    protected $app;
 
     public function dispatch(Request $request, Response $response)
     {
+        clearstatcache();
+
         Boot::handle();
 
         try {
             $illuminateRequest = \Lxj\Laravel\Tars\Request::make($request)->toIlluminate();
 
-            $this->clean($illuminateRequest);
+            $this->app = $this->app($illuminateRequest);
 
             list($illuminateRequest, $illuminateResponse) = $this->handle($illuminateRequest);
 
@@ -50,10 +53,16 @@ class TarsRoute implements Route
 
         event('laravel.tars.requesting', [$illuminateRequest]);
 
-        //Laravel App 创建完必须
-        $application = $this->app($illuminateRequest);
+        $application = $this->app;
 
         if (Util::isLumen()) {
+            $auth = $application['auth'];
+            $reflect = new \ReflectionObject($auth);
+            $prop = $reflect->getProperty('customCreators');
+            $prop->setAccessible(true);
+            $cc = $prop->getValue($auth);
+            var_dump(isset($cc['api']));
+
             $illuminateResponse = $application->dispatch($illuminateRequest);
         } else {
             /** @var Kernel $kernel */
@@ -79,7 +88,7 @@ class TarsRoute implements Route
 
     protected function terminate($illuminateRequest, $illuminateResponse)
     {
-        $application = $this->app($illuminateRequest);
+        $application = $this->app;
 
         if (Util::isLumen()) {
             // Reflections
@@ -116,7 +125,7 @@ class TarsRoute implements Route
             }
         }
 
-        $application = $this->app($illuminateRequest);
+        $application = $this->app;
 
         if (Util::isLumen()) {
             // Clean laravel cookie queue
@@ -160,6 +169,10 @@ class TarsRoute implements Route
         \Lxj\Laravel\Tars\Response::make($illuminateResponse, $tarsResponse)->send();
     }
 
+    /**
+     * @param $request
+     * @return Application
+     */
     protected function app($request)
     {
         return App::getApp($request);
