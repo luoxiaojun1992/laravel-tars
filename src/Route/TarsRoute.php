@@ -150,6 +150,11 @@ class TarsRoute implements Route
                     unset($loadedProvidersValue[AuthServiceProvider::class]);
                     $loadedProviders->setValue($application, $loadedProvidersValue);
                     $application->register(AuthServiceProvider::class);
+                    unset($loadedProvidersValue[\App\Providers\AuthServiceProvider::class]);
+                    $loadedProviders->setValue($application, $loadedProvidersValue);
+                    $application->register(
+                        \App\Providers\AuthServiceProvider::class
+                    );
                     Facade::clearResolvedInstance('auth');
                 }
             } else {

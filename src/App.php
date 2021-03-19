@@ -40,7 +40,9 @@ class App
     public static function getApp($request)
     {
         if (!is_null(static::$app)) {
-            static::bootLaravelKernel(static::$app, $request);
+            if (!Util::isLumen()) {
+                static::bootLaravelKernel(static::$app, $request);
+            }
             return static::$app;
         }
 
@@ -54,10 +56,10 @@ class App
         $oldApp->flush();
         Facade::clearResolvedInstances();
 
-        if (!Util::isLumen()) {
-            static::bootLaravelKernel($application, $request);
-        } else {
+        if (Util::isLumen()) {
             Facade::setFacadeApplication($application);
+        } else {
+            static::bootLaravelKernel($application, $request);
         }
 
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
