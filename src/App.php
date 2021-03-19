@@ -3,6 +3,7 @@
 namespace Lxj\Laravel\Tars;
 
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Facade;
 
 class App
@@ -38,12 +39,9 @@ class App
      */
     public static function getApp($request)
     {
-        $laravelSingleton = boolval(config('tars.laravel_singleton', false));
-        if ($laravelSingleton) {
-            if (!is_null(static::$app)) {
-                static::bootLaravelKernel(static::$app, $request);
-                return static::$app;
-            }
+        if (!is_null(static::$app)) {
+            static::bootLaravelKernel(static::$app, $request);
+            return static::$app;
         }
 
         static::setTarsDeployCfg(config('tars.deploy_cfg'));
@@ -51,9 +49,7 @@ class App
         $oldApp = app();
 
         $application = static::createApp();
-        if ($laravelSingleton) {
-            static::$app = $application;
-        }
+        static::$app = $application;
 
         $oldApp->flush();
         Facade::clearResolvedInstances();
