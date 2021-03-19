@@ -119,7 +119,7 @@ class TarsRoute implements Route
         if ($illuminateRequest->hasSession()) {
             $session = $illuminateRequest->getSession();
             if (is_callable([$session, 'clear'])) {
-                $session->clear(); // @codeCoverageIgnore
+                $session->clear();
             } else {
                 $session->flush();
             }
