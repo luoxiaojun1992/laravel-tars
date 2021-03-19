@@ -51,13 +51,16 @@ class App
         $oldApp = app();
 
         $application = static::createApp();
+        if ($laravelSingleton) {
+            static::$app = $application;
+        }
 
         $oldApp->flush();
+        Facade::clearResolvedInstances();
 
         if (!Util::isLumen()) {
             static::bootLaravelKernel($application, $request);
         } else {
-            Facade::clearResolvedInstances();
             Facade::setFacadeApplication($application);
         }
 
