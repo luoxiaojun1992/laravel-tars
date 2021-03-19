@@ -25,6 +25,8 @@ class TarsRoute implements Route
 
         Boot::handle();
 
+        $illuminateRequest = null;
+
         try {
             $illuminateRequest = \Lxj\Laravel\Tars\Request::make($request)->toIlluminate();
 
@@ -35,11 +37,13 @@ class TarsRoute implements Route
             $this->terminate($illuminateRequest, $illuminateResponse);
 
             $this->response($response, $illuminateResponse);
-
-            $this->clean($illuminateRequest);
         } catch (\Exception $e) {
             $response->status(500);
             $response->send($e->getMessage() . '|' . $e->getTraceAsString());
+        } finally {
+            if (!is_null($illuminateRequest)) {
+                $this->clean($illuminateRequest);
+            }
         }
     }
 
@@ -127,39 +131,41 @@ class TarsRoute implements Route
 
         $application = $this->app;
 
-        if (Util::isLumen()) {
-            // Clean laravel cookie queue
-            if ($application->has('cookie')) {
-                $cookieJar = $application->make('cookie');
-                foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
-                    $cookieJar->unqueue($name);
+        if (!is_null($application)) {
+            if (Util::isLumen()) {
+                // Clean laravel cookie queue
+                if ($application->has('cookie')) {
+                    $cookieJar = $application->make('cookie');
+                    foreach ($cookieJar->getQueuedCookies() as $name => $cookie) {
+                        $cookieJar->unqueue($name);
+                    }
                 }
-            }
 
-            // Reflections
-            $reflection = new \ReflectionObject($application);
-            $loadedProviders = $reflection->getProperty('loadedProviders');
-            $loadedProviders->setAccessible(true);
-            $loadedProvidersValue = $loadedProviders->getValue($application);
-            if (array_key_exists(AuthServiceProvider::class, $loadedProvidersValue)) {
-                unset($loadedProvidersValue[AuthServiceProvider::class]);
-                $loadedProviders->setValue($application, $loadedProvidersValue);
-                $application->register(AuthServiceProvider::class);
-                Facade::clearResolvedInstance('auth');
-            }
-        } else {
-            // Clean laravel cookie queue
-            if ($application->has(QueueingFactory::class)) {
-                $cookies = $application->make(QueueingFactory::class);
-                foreach ($cookies->getQueuedCookies() as $name => $cookie) {
-                    $cookies->unqueue($name);
+                // Reflections
+                $reflection = new \ReflectionObject($application);
+                $loadedProviders = $reflection->getProperty('loadedProviders');
+                $loadedProviders->setAccessible(true);
+                $loadedProvidersValue = $loadedProviders->getValue($application);
+                if (array_key_exists(AuthServiceProvider::class, $loadedProvidersValue)) {
+                    unset($loadedProvidersValue[AuthServiceProvider::class]);
+                    $loadedProviders->setValue($application, $loadedProvidersValue);
+                    $application->register(AuthServiceProvider::class);
+                    Facade::clearResolvedInstance('auth');
                 }
-            }
+            } else {
+                // Clean laravel cookie queue
+                if ($application->has(QueueingFactory::class)) {
+                    $cookies = $application->make(QueueingFactory::class);
+                    foreach ($cookies->getQueuedCookies() as $name => $cookie) {
+                        $cookies->unqueue($name);
+                    }
+                }
 
-            $loadedProviders = $application->getLoadedProviders();
-            if (isset($loadedProviders[AuthServiceProvider::class])) {
-                $application->register(AuthServiceProvider::class, true);
-                Facade::clearResolvedInstance('auth');
+                $loadedProviders = $application->getLoadedProviders();
+                if (isset($loadedProviders[AuthServiceProvider::class])) {
+                    $application->register(AuthServiceProvider::class, true);
+                    Facade::clearResolvedInstance('auth');
+                }
             }
         }
     }
