@@ -3,10 +3,13 @@
 namespace Lxj\Laravel\Tars;
 
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Facade;
 
 class App
 {
+    public static $app;
+
     public static $tarsDeployCfg;
 
     public static function setTarsDeployCfg($tarsDeployCfg)
@@ -19,31 +22,44 @@ class App
         return static::$tarsDeployCfg;
     }
 
+    public static function bootLaravelKernel($app, $request)
+    {
+        /** @var Kernel $kernel */
+        $kernel = $app->make(Kernel::class);
+
+        $request->enableHttpMethodParameterOverride();
+        $app->instance('request', $request);
+        Facade::clearResolvedInstance('request');
+        $kernel->bootstrap();
+    }
+
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return mixed
      */
     public static function getApp($request)
     {
+        if (!is_null(static::$app)) {
+            if (!Util::isLumen()) {
+                static::bootLaravelKernel(static::$app, $request);
+            }
+            return static::$app;
+        }
+
         static::setTarsDeployCfg(config('tars.deploy_cfg'));
 
         $oldApp = app();
 
         $application = static::createApp();
+        static::$app = $application;
 
         $oldApp->flush();
+        Facade::clearResolvedInstances();
 
-        if (!Util::isLumen()) {
-            /** @var Kernel $kernel */
-            $kernel = $application->make(Kernel::class);
-
-            $request->enableHttpMethodParameterOverride();
-            $application->instance('request', $request);
-            Facade::clearResolvedInstance('request');
-            $kernel->bootstrap();
-        } else {
-            Facade::clearResolvedInstances();
+        if (Util::isLumen()) {
             Facade::setFacadeApplication($application);
+        } else {
+            static::bootLaravelKernel($application, $request);
         }
 
         config(['tars.deploy_cfg' => static::getTarsDeployCfg()]);
