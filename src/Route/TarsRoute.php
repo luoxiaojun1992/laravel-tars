@@ -60,13 +60,6 @@ class TarsRoute implements Route
         $application = $this->app;
 
         if (Util::isLumen()) {
-            $auth = $application['auth'];
-            $reflect = new \ReflectionObject($auth);
-            $prop = $reflect->getProperty('customCreators');
-            $prop->setAccessible(true);
-            $cc = $prop->getValue($auth);
-            var_dump(isset($cc['api']));
-
             $illuminateResponse = $application->dispatch($illuminateRequest);
         } else {
             /** @var Kernel $kernel */
