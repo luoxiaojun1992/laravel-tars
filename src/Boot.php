@@ -43,7 +43,12 @@ class Boot
     private static function setTarsLog($deployConfigPath, $level = Logger::INFO)
     {
         $communicatorConfig = Config::communicatorConfig($deployConfigPath);
-        $tarsLogHandler = new \Tars\log\handler\TarsHandler($communicatorConfig, 'tars.tarslog.LogObj', $level);
+        if (class_exists('Tars\log\handler\TarsHandler')) {
+            $tarsLogHandlerClass = 'Tars\log\handler\TarsHandler';
+        } else {
+            $tarsLogHandlerClass = LogHandler::class;
+        }
+        $tarsLogHandler = new $tarsLogHandlerClass($communicatorConfig, 'tars.tarslog.LogObj', $level);
 
         $logger = app()->make('log');
         if ($logger instanceof Logger) {
