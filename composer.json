@@ -10,16 +10,16 @@
     }
   ],
   "require": {
-    "illuminate/console": "~5",
-    "illuminate/support": "~5",
-    "illuminate/contracts": "~5",
-    "vlucas/phpdotenv": "~2|~3",
+    "illuminate/console": "~5|~6|~7|~8",
+    "illuminate/support": "~5|~6|~7|~8",
+    "illuminate/contracts": "~5|~6|~7|~8",
+    "vlucas/phpdotenv": "~2|~3|~4|~5",
     "phptars/tars-server": "~0.6",
     "phptars/tars-deploy": "~0.1",
     "phptars/tars2php": "~0.1",
     "phptars/tars-log": "~0.1",
-    "laravelista/lumen-vendor-publish": "2.1.0",
-    "guzzlehttp/guzzle": "^6"
+    "laravelista/lumen-vendor-publish": "2.1.0|~6|~7|~8",
+    "guzzlehttp/guzzle": "^6|~7"
   },
   "require-dev": {
     "phpunit/phpunit": "*",
