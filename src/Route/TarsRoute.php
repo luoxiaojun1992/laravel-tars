@@ -69,7 +69,7 @@ class TarsRoute implements Route
 
         if (!($illuminateResponse instanceof BinaryFileResponse)) {
             $content = $illuminateResponse->getContent();
-            if (strlen($content) === 0 && ob_get_length() > 0) {
+            if ((($content === false) || ($content === null))&& ob_get_length() > 0) {
                 $illuminateResponse->setContent(ob_get_contents());
                 ob_end_clean();
                 $isObEnd = true;
